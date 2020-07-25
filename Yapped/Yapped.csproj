@@ -85,6 +85,18 @@
       <DependentUpon>FormNewRow.cs</DependentUpon>
     </Compile>
     <Compile Include="GameMode.cs" />
+    <Compile Include="Grids\CellsGridHost.cs" />
+    <Compile Include="Grids\Generic\Grid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Grids\Generic\CacheByColor.cs" />
+    <Compile Include="Grids\Generic\GridCellStyle.cs" />
+    <Compile Include="Grids\Generic\GridHost.cs" />
+    <Compile Include="Grids\Generic\IGridHost.cs" />
+    <Compile Include="Grids\Generic\GridRowVisibility.cs" />
+    <Compile Include="Grids\ParamsGridHost.cs" />
+    <Compile Include="Grids\RowsGridHost.cs" />
+    <Compile Include="Grids\SelectionMemory.cs" />
     <Compile Include="ParamInfo.cs" />
     <Compile Include="ParamWrapper.cs" />
     <Compile Include="Program.cs" />

@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.ofdRegulation = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -58,31 +57,16 @@
             this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.dgvParams = new System.Windows.Forms.DataGridView();
-            this.dgvParamsParamCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.dgvRows = new System.Windows.Forms.DataGridView();
-            this.dgvRowsIDCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvRowsNameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvCells = new System.Windows.Forms.DataGridView();
-            this.dgvCellsTypeCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvCellsNameCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgvCellsValueCol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.fbdExport = new System.Windows.Forms.FolderBrowserDialog();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
-            this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvParams)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRows)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCells)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -323,10 +307,6 @@
             this.splitContainer2.Location = new System.Drawing.Point(0, 24);
             this.splitContainer2.Name = "splitContainer2";
             // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.dgvParams);
-            // 
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
@@ -334,137 +314,15 @@
             this.splitContainer2.SplitterDistance = 249;
             this.splitContainer2.TabIndex = 2;
             // 
-            // dgvParams
-            // 
-            this.dgvParams.AllowUserToAddRows = false;
-            this.dgvParams.AllowUserToDeleteRows = false;
-            this.dgvParams.AllowUserToResizeColumns = false;
-            this.dgvParams.AllowUserToResizeRows = false;
-            this.dgvParams.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvParams.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvParams.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dgvParamsParamCol});
-            this.dgvParams.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvParams.Location = new System.Drawing.Point(0, 0);
-            this.dgvParams.MultiSelect = false;
-            this.dgvParams.Name = "dgvParams";
-            this.dgvParams.RowHeadersVisible = false;
-            this.dgvParams.Size = new System.Drawing.Size(249, 500);
-            this.dgvParams.TabIndex = 0;
-            this.dgvParams.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.DgvParams_CellToolTipTextNeeded);
-            this.dgvParams.SelectionChanged += new System.EventHandler(this.DgvParams_SelectionChanged);
-            // 
-            // dgvParamsParamCol
-            // 
-            this.dgvParamsParamCol.DataPropertyName = "Name";
-            this.dgvParamsParamCol.HeaderText = "Param";
-            this.dgvParamsParamCol.Name = "dgvParamsParamCol";
-            this.dgvParamsParamCol.ReadOnly = true;
-            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.dgvRows);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.dgvCells);
             this.splitContainer1.Size = new System.Drawing.Size(507, 500);
             this.splitContainer1.SplitterDistance = 250;
             this.splitContainer1.TabIndex = 7;
-            // 
-            // dgvRows
-            // 
-            this.dgvRows.AllowUserToAddRows = false;
-            this.dgvRows.AllowUserToDeleteRows = false;
-            this.dgvRows.AllowUserToResizeColumns = false;
-            this.dgvRows.AllowUserToResizeRows = false;
-            this.dgvRows.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvRows.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dgvRowsIDCol,
-            this.dgvRowsNameCol});
-            this.dgvRows.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvRows.Location = new System.Drawing.Point(0, 0);
-            this.dgvRows.MultiSelect = false;
-            this.dgvRows.Name = "dgvRows";
-            this.dgvRows.RowHeadersVisible = false;
-            this.dgvRows.Size = new System.Drawing.Size(250, 500);
-            this.dgvRows.TabIndex = 1;
-            this.dgvRows.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.DgvRows_CellValidating);
-            this.dgvRows.SelectionChanged += new System.EventHandler(this.DgvRows_SelectionChanged);
-            // 
-            // dgvRowsIDCol
-            // 
-            this.dgvRowsIDCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dgvRowsIDCol.DataPropertyName = "ID";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.dgvRowsIDCol.DefaultCellStyle = dataGridViewCellStyle1;
-            this.dgvRowsIDCol.HeaderText = "Row";
-            this.dgvRowsIDCol.Name = "dgvRowsIDCol";
-            this.dgvRowsIDCol.Width = 54;
-            // 
-            // dgvRowsNameCol
-            // 
-            this.dgvRowsNameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dgvRowsNameCol.DataPropertyName = "Name";
-            this.dgvRowsNameCol.HeaderText = "Name";
-            this.dgvRowsNameCol.Name = "dgvRowsNameCol";
-            // 
-            // dgvCells
-            // 
-            this.dgvCells.AllowUserToAddRows = false;
-            this.dgvCells.AllowUserToDeleteRows = false;
-            this.dgvCells.AllowUserToResizeColumns = false;
-            this.dgvCells.AllowUserToResizeRows = false;
-            this.dgvCells.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCells.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dgvCellsTypeCol,
-            this.dgvCellsNameCol,
-            this.dgvCellsValueCol});
-            this.dgvCells.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvCells.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dgvCells.Location = new System.Drawing.Point(0, 0);
-            this.dgvCells.Name = "dgvCells";
-            this.dgvCells.RowHeadersVisible = false;
-            this.dgvCells.Size = new System.Drawing.Size(253, 500);
-            this.dgvCells.TabIndex = 2;
-            this.dgvCells.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.DgvCells_CellFormatting);
-            this.dgvCells.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.DgvCells_CellParsing);
-            this.dgvCells.CellToolTipTextNeeded += new System.Windows.Forms.DataGridViewCellToolTipTextNeededEventHandler(this.DgvCells_CellToolTipTextNeeded);
-            this.dgvCells.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.DgvCells_CellValidating);
-            this.dgvCells.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.DgvCells_DataBindingComplete);
-            this.dgvCells.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.DgvCells_DataError);
-            // 
-            // dgvCellsTypeCol
-            // 
-            this.dgvCellsTypeCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dgvCellsTypeCol.DataPropertyName = "Type";
-            this.dgvCellsTypeCol.HeaderText = "Type";
-            this.dgvCellsTypeCol.Name = "dgvCellsTypeCol";
-            this.dgvCellsTypeCol.ReadOnly = true;
-            this.dgvCellsTypeCol.Width = 56;
-            // 
-            // dgvCellsNameCol
-            // 
-            this.dgvCellsNameCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.dgvCellsNameCol.DataPropertyName = "Name";
-            this.dgvCellsNameCol.HeaderText = "Name";
-            this.dgvCellsNameCol.Name = "dgvCellsNameCol";
-            this.dgvCellsNameCol.ReadOnly = true;
-            this.dgvCellsNameCol.Width = 60;
-            // 
-            // dgvCellsValueCol
-            // 
-            this.dgvCellsValueCol.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.dgvCellsValueCol.DataPropertyName = "Value";
-            this.dgvCellsValueCol.HeaderText = "Value";
-            this.dgvCellsValueCol.Name = "dgvCellsValueCol";
             // 
             // statusStrip1
             // 
@@ -503,17 +361,11 @@
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvParams)).EndInit();
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRows)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCells)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -522,10 +374,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.DataGridView dgvParams;
-        private System.Windows.Forms.DataGridView dgvRows;
-        private System.Windows.Forms.DataGridView dgvCells;
         private System.Windows.Forms.OpenFileDialog ofdRegulation;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -541,15 +389,9 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripMenuItem updateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportNamesToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvParamsParamCol;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRowsIDCol;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvRowsNameCol;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem verifyDeletionsToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvCellsTypeCol;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvCellsNameCol;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dgvCellsValueCol;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem hideUnusedParamsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findRowToolStripMenuItem;
