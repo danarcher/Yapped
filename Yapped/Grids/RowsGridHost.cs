@@ -85,6 +85,11 @@ namespace Yapped.Grids
                     cellsGrid.SelectedColumnIndex = 1;
                     cellsGrid.ScrollToSelection();
                 }
+                else if (cellsGrid.RowCount > 0)
+                {
+                    cellsGrid.SelectedRowIndex = 0;
+                    cellsGrid.SelectedColumnIndex = 1;
+                }
                 if (memory.TopCell.RecallValue(out int recallTop))
                 {
                     cellsGrid.ScrollTop = recallTop;
@@ -95,6 +100,45 @@ namespace Yapped.Grids
         public override void ScrollTopChanged(int scrollTop)
         {
             memory.TopRow.StoreValue(scrollTop);
+        }
+
+        public override GridCellType GetCellEditType(int rowIndex, int columnIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    return GridCellType.UInt32;
+                case 1:
+                    return GridCellType.String;
+                default:
+                    return GridCellType.None;
+            }
+        }
+
+        public override object GetCellEditValue(int rowIndex, int columnIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    return (uint)DataSource.Rows[rowIndex].ID;
+                case 1:
+                    return DataSource.Rows[rowIndex].Name;
+                default:
+                    return null;
+            }
+        }
+
+        public override void SetCellEditValue(int rowIndex, int columnIndex, object value)
+        {
+            switch (columnIndex)
+            {
+                case 0:
+                    DataSource.Rows[rowIndex].ID = (uint)value;
+                    break;
+                case 1:
+                    DataSource.Rows[rowIndex].Name = (string)value;
+                    break;
+            }
         }
     }
 }

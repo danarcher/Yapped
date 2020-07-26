@@ -10,6 +10,8 @@ namespace Yapped.Grids.Generic
     public class Grid : UserControl
     {
         private VScrollBar scrollBar;
+        private ToolTip toolTip;
+        private Timer toolTipTimer, toolTipCancelTimer;
         private bool lastRowPartiallyVisible;
         private IGridHost host;
         private int selectedRowIndex;
@@ -30,6 +32,8 @@ namespace Yapped.Grids.Generic
             Controls.Add(scrollBar);
             scrollBar.Dock = DockStyle.Right;
             scrollBar.ValueChanged += OnScrollBarValueChanged;
+
+            toolTip = new ToolTip();
 
             BorderColor = SystemColors.ControlDark;
             SelectedRowBackColor = SystemColors.Control;
@@ -53,6 +57,8 @@ namespace Yapped.Grids.Generic
                 brushes.Dispose();
                 pens.Dispose();
                 boldFont?.Dispose();
+                toolTipTimer?.Dispose();
+                toolTipCancelTimer?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -141,6 +147,8 @@ namespace Yapped.Grids.Generic
                 }
             }
         }
+
+        public int RowCount => host?.RowCount ?? 0;
 
         public Color BorderColor { get; set; }
         public Color SelectedRowBackColor { get; set; }
@@ -244,7 +252,24 @@ namespace Yapped.Grids.Generic
             {
                 scrollBar.Value = Math.Max(scrollBar.Value - delta, 0);
             }
+            CancelToolTip();
             base.OnMouseWheel(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            ShowOrUpdateToolTip();
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            // Don't cancel the tooltip immediately, since this event may be
+            // triggered by the user mousing over the tooltip itself on their
+            // way to another cell. Instead, if we don't reshow the tooltip
+            // soon (on that other cell) then cancel it.
+            CancelToolTipUnlessShowAgainSoon();
+            base.OnMouseLeave(e);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -256,6 +281,18 @@ namespace Yapped.Grids.Generic
                 ScrollToSelection(); // In case the user clicked a partially visible row.
             }
             base.OnMouseDown(e);
+        }
+
+        protected override void OnDoubleClick(EventArgs e)
+        {
+            if (HitTest(PointToClient(MousePosition), out int rowIndex, out int columnIndex))
+            {
+                SelectedRowIndex = rowIndex;
+                SelectedColumnIndex = columnIndex;
+                ScrollToSelection();
+                TryEditCell();
+            }
+            base.OnDoubleClick(e);
         }
 
         protected override bool IsInputKey(Keys keyData)
@@ -344,6 +381,10 @@ namespace Yapped.Grids.Generic
                         SelectedRowIndex = host.RowCount - 1;
                         ScrollToSelection();
                     }
+                    break;
+                case Keys.F2:
+                case Keys.Enter:
+                    TryEditCell();
                     break;
             }
             base.OnKeyDown(e);
@@ -526,6 +567,7 @@ namespace Yapped.Grids.Generic
 
         private void RaiseSelectionChanged()
         {
+            CancelToolTip();
             Invalidate();
             host?.SelectionChanged(selectedRowIndex, selectedColumnIndex);
         }
@@ -553,6 +595,105 @@ namespace Yapped.Grids.Generic
             }
             rowIndex = -1;
             columnIndex = -1;
+            return false;
+        }
+
+        private void ShowOrUpdateToolTip()
+        {
+            // Don't show a tooltip if the mouse isn't over a cell,
+            // or if that cell's tooltip is already showing.
+            var location = PointToClient(MousePosition);
+            if (host == null ||
+                !HitTest(location, out int rowIndex, out int columnIndex) ||
+                !TryGetCellBounds(rowIndex, columnIndex, out Rectangle rect) ||
+                (toolTip.Active && object.Equals(toolTip.Tag, (rowIndex, columnIndex))))
+            {
+                return;
+            }
+
+            // Show no tooltip if there is no text to show.
+            var text = host.GetCellToolTip(rowIndex, columnIndex);
+            if (string.IsNullOrEmpty(text))
+            {
+                CancelToolTip();
+                return;
+            }
+
+            // Cancel any other tooltip related activity.
+            toolTipCancelTimer?.Dispose();
+            toolTipTimer?.Dispose();
+
+            // Set up how we'll show the tooltip.
+            Action showTip = () =>
+            {
+                // We'll show the tooltip under the cell.
+                toolTip.Show(text, this, rect.Left, rect.Bottom - 1);
+                // Tag the tooltip as belonging to this cell.
+                toolTip.Tag = (rowIndex, columnIndex);
+                // If we showed the tooltip on a timer, stop it now.
+                toolTipTimer?.Stop();
+            };
+
+            if (toolTip.Tag != null)
+            {
+                // If the user is already interested in tooltips,
+                // show the tooltip immediately.
+                showTip();
+                return;
+            }
+
+            // Show the tooltip soon if the user's interest doesn't wander.
+            toolTipTimer = new Timer();
+            toolTipTimer.Tick += (s, v) => showTip();
+            toolTipTimer.Interval = 500;
+            toolTipTimer.Start();
+        }
+
+        private void CancelToolTip()
+        {
+            toolTip.Tag = null;
+            toolTip.Hide(this);
+            toolTipTimer?.Dispose();
+        }
+
+        private void CancelToolTipUnlessShowAgainSoon()
+        {
+            toolTipCancelTimer?.Dispose();
+            toolTipCancelTimer = new Timer();
+            toolTipCancelTimer.Tick += (s, v) => CancelToolTip();
+            toolTipCancelTimer.Interval = 500;
+            toolTipCancelTimer.Start();
+        }
+
+        private bool TryEditCell()
+        {
+            if (host == null || selectedRowIndex == -1 || selectedColumnIndex == -1 ||
+                host.GetCellEditType(selectedRowIndex, selectedColumnIndex) == GridCellType.None)
+            {
+                return false;
+            }
+
+            // Just toggle boolean values.
+            if (host.GetCellEditType(selectedRowIndex, selectedColumnIndex) == GridCellType.Boolean)
+            {
+                host.SetCellEditValue(selectedRowIndex, selectedColumnIndex, !(bool)host.GetCellEditValue(selectedRowIndex, selectedColumnIndex));
+                Invalidate();
+                return true;
+            }
+
+            // Edit other values with a dialog.
+            using (var dialog = new FormCellEdit())
+            {
+                dialog.DataType = host.GetCellEditType(selectedRowIndex, selectedColumnIndex);
+                dialog.EnumValues = host.GetCellEnumValues(selectedRowIndex, selectedColumnIndex);
+                dialog.Value = host.GetCellEditValue(selectedRowIndex, selectedColumnIndex);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    host.SetCellEditValue(selectedRowIndex, selectedColumnIndex, dialog.Value);
+                    Invalidate();
+                    return true;
+                }
+            }
             return false;
         }
     }

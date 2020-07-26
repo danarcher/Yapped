@@ -2,7 +2,6 @@
 using SoulsFormats;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -13,7 +12,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Yapped.Grids;
 using Yapped.Grids.Generic;
-using CellType = SoulsFormats.PARAM.CellType;
 using GameType = Yapped.GameMode.GameType;
 
 namespace Yapped
@@ -551,29 +549,6 @@ namespace Yapped
             Process.Start(UPDATE_URL);
         }
 
-        //private void DgvParams_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
-        //{
-        //    if (e.RowIndex >= 0)
-        //    {
-        //        var paramWrapper = (ParamWrapper)dgvParams.Rows[e.RowIndex].DataBoundItem;
-        //        e.ToolTipText = paramWrapper.Description;
-        //    }
-        //}
-
-        //private void DgvRows_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        //{
-        //    // ID
-        //    if (e.ColumnIndex == 0)
-        //    {
-        //        bool parsed = int.TryParse((string)e.FormattedValue, out int value);
-        //        if (!parsed || value < 0)
-        //        {
-        //            Util.ShowError("Row ID must be a positive integer.\r\nEnter a valid number or press Esc to cancel.");
-        //            e.Cancel = true;
-        //        }
-        //    }
-        //}
-
         //private void FormatDgvCells()
         //{
         //    foreach (DataGridViewRow row in dgvCells.Rows)
@@ -603,108 +578,6 @@ namespace Yapped
         //        {
         //            row.Cells[2].ValueType = cell.Value.GetType();
         //        }
-        //    }
-        //}
-
-        //private void DgvCells_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        //{
-        //    if (e.ColumnIndex != 2)
-        //        return;
-
-        //    DataGridViewRow row = dgvCells.Rows[e.RowIndex];
-        //    if (!(row.Cells[2] is DataGridViewComboBoxCell))
-        //    {
-        //        var cell = (PARAM.Cell)row.DataBoundItem;
-        //        if (cell.Type == CellType.x8)
-        //        {
-        //            e.Value = $"0x{e.Value:X2}";
-        //            e.FormattingApplied = true;
-        //        }
-        //        else if (cell.Type == CellType.x16)
-        //        {
-        //            e.Value = $"0x{e.Value:X4}";
-        //            e.FormattingApplied = true;
-        //        }
-        //        else if (cell.Type == CellType.x32)
-        //        {
-        //            e.Value = $"0x{e.Value:X8}";
-        //            e.FormattingApplied = true;
-        //        }
-        //    }
-        //}
-
-        //private void DgvCells_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        //{
-        //    if (e.ColumnIndex != 2)
-        //        return;
-
-        //    DataGridViewRow row = dgvCells.Rows[e.RowIndex];
-        //    try
-        //    {
-        //        if (!(row.Cells[2] is DataGridViewComboBoxCell))
-        //        {
-        //            var cell = (PARAM.Cell)row.DataBoundItem;
-        //            if (cell.Type == CellType.x8)
-        //                Convert.ToByte((string)e.FormattedValue, 16);
-        //            else if (cell.Type == CellType.x16)
-        //                Convert.ToUInt16((string)e.FormattedValue, 16);
-        //            else if (cell.Type == CellType.x32)
-        //                Convert.ToUInt32((string)e.FormattedValue, 16);
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        e.Cancel = true;
-        //        dgvCells.EditingPanel.BackColor = Color.Pink;
-        //        dgvCells.EditingControl.BackColor = Color.Pink;
-        //        SystemSounds.Hand.Play();
-        //    }
-        //}
-
-        //private void DgvCells_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
-        //{
-        //    if (e.ColumnIndex != 2)
-        //        return;
-
-        //    DataGridViewRow row = dgvCells.Rows[e.RowIndex];
-        //    if (!(row.Cells[2] is DataGridViewComboBoxCell))
-        //    {
-        //        var cell = (PARAM.Cell)row.DataBoundItem;
-        //        if (cell.Type == CellType.x8)
-        //        {
-        //            e.Value = Convert.ToByte((string)e.Value, 16);
-        //            e.ParsingApplied = true;
-        //        }
-        //        else if (cell.Type == CellType.x16)
-        //        {
-        //            e.Value = Convert.ToUInt16((string)e.Value, 16);
-        //            e.ParsingApplied = true;
-        //        }
-        //        else if (cell.Type == CellType.x32)
-        //        {
-        //            e.Value = Convert.ToUInt32((string)e.Value, 16);
-        //            e.ParsingApplied = true;
-        //        }
-        //    }
-        //}
-
-        //private void DgvCells_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        //{
-        //    e.Cancel = true;
-        //    if (dgvCells.EditingPanel != null)
-        //    {
-        //        dgvCells.EditingPanel.BackColor = Color.Pink;
-        //        dgvCells.EditingControl.BackColor = Color.Pink;
-        //    }
-        //    SystemSounds.Hand.Play();
-        //}
-
-        //private void DgvCells_CellToolTipTextNeeded(object sender, DataGridViewCellToolTipTextNeededEventArgs e)
-        //{
-        //    if (e.RowIndex >= 0 && e.ColumnIndex == 1)
-        //    {
-        //        var cell = (PARAM.Cell)dgvCells.Rows[e.RowIndex].DataBoundItem;
-        //        e.ToolTipText = cell.Description;
         //    }
         //}
 

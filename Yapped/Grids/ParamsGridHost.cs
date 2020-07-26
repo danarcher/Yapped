@@ -23,6 +23,7 @@ namespace Yapped.Grids
         public override int ColumnCount => 1;
         public override int RowCount => DataSource?.Count ?? 0;
         public override string GetCellDisplayValue(int rowIndex, int columnIndex) => DataSource[rowIndex].Name;
+        public override string GetCellToolTip(int rowIndex, int columnIndex) => DataSource[rowIndex].Description;
         public override string GetColumnName(int columnIndex) => "Name";
         public override int GetColumnWidth(Grid grid, int columnIndex) => grid.ClientSize.Width;
 
@@ -48,6 +49,11 @@ namespace Yapped.Grids
                     rowsGrid.SelectedRowIndex = recall;
                     rowsGrid.SelectedColumnIndex = 1;
                     rowsGrid.ScrollToSelection();
+                }
+                else if (rowsGrid.RowCount > 0)
+                {
+                    rowsGrid.SelectedRowIndex = 0;
+                    rowsGrid.SelectedColumnIndex = 1;
                 }
                 if (memory.TopRow.RecallValue(out int recallTop))
                 {
