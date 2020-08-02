@@ -3,11 +3,21 @@ An editor for Dark Souls 3 and Sekiro param files, which determine the propertie
 Requires [.NET 4.7.2](https://www.microsoft.com/net/download/thank-you/net472) - Windows 10 users should already have this.  
 [Nexus Page](https://www.nexusmods.com/darksouls3/mods/298)  
 
+## Note
+This is a fork of [Yapped by JKAnderson](https://github.com/JKAnderson/Yapped). Its features diverge.
+
+This fork is not adequately supported or tested, but is for my own use. Back up your data and use at your own risk!
+
 # Warning
 As far as we know, in DS3 *any* edits to the regulation file (where params are stored) will trigger anticheat, including simply opening it and resaving it.  
 Only use modified params in offline mode. Back up your save file and restore it before going online again if you're doing anything that could affect it.  
 
 # Changelog
+### Forked
+* Grids replaced with a more responsive custom implementation but with cruder editing facilities
+* Values which differ from the (customary) default are highlighted
+* The new Tools menu has an option to calculate attack rating for all weapons for given stats
+
 ### 1.1.2
 * Beta for Sekiro support
 
