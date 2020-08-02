@@ -26,6 +26,9 @@ namespace Yapped.Grids.Generic
         object GetCellEditValue(int rowIndex, int columnIndex);
         void SetCellEditValue(int rowIndex, int columnIndex, object value);
 
+        bool IsColumnClickable(int columnIndex);
+        void ColumnClicked(int columnIndex);
+
         event EventHandler DataSourceChanged;
     }
 }

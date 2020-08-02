@@ -215,6 +215,20 @@ namespace Yapped.Grids.Generic
             return true;
         }
 
+        private bool TryGetColumnHeaderBounds(int columnIndex, out Rectangle rect)
+        {
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < columnIndex; ++i)
+            {
+                x += host?.GetColumnWidth(this, i) ?? 0;
+            }
+            var width = host?.GetColumnWidth(this, columnIndex) ?? 0;
+            var height = RowHeight;
+            rect = new Rectangle(x, y, width, height);
+            return true;
+        }
+
         private bool TryGetCellBounds(int rowIndex, int columnIndex, out Rectangle rect)
         {
             if (!TryGetRowBounds(rowIndex, out Rectangle rowRect))
@@ -279,6 +293,10 @@ namespace Yapped.Grids.Generic
                 SelectedRowIndex = rowIndex;
                 SelectedColumnIndex = columnIndex;
                 ScrollToSelection(); // In case the user clicked a partially visible row.
+            }
+            else if (HitTestColumnHeader(e.Location, out int columnHeaderIndex) && host.IsColumnClickable(columnHeaderIndex))
+            {
+                host.ColumnClicked(columnHeaderIndex);
             }
             base.OnMouseDown(e);
         }
@@ -498,6 +516,11 @@ namespace Yapped.Grids.Generic
             }
         }
 
+        public void InvalidateDataSource()
+        {
+            OnHostDataSourceChanged(this, EventArgs.Empty);
+        }
+
         private void OnHostDataSourceChanged(object sender, EventArgs e)
         {
             scrollBar.ValueChanged -= OnScrollBarValueChanged;
@@ -594,6 +617,20 @@ namespace Yapped.Grids.Generic
                 }
             }
             rowIndex = -1;
+            columnIndex = -1;
+            return false;
+        }
+
+        private bool HitTestColumnHeader(Point p, out int columnIndex)
+        {
+            for (var testColumnIndex = 0; testColumnIndex < host.ColumnCount; ++testColumnIndex)
+            {
+                if (TryGetColumnHeaderBounds(testColumnIndex, out Rectangle rect) && rect.Contains(p))
+                {
+                    columnIndex = testColumnIndex;
+                    return true;
+                }
+            }
             columnIndex = -1;
             return false;
         }

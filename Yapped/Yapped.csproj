@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CryptographyUtility.cs" />
+    <Compile Include="Grids\WeaponDamageCalculator.cs" />
     <Compile Include="FormFind.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,6 +87,13 @@
     </Compile>
     <Compile Include="GameMode.cs" />
     <Compile Include="Grids\CellsGridHost.cs" />
+    <Compile Include="Grids\WeaponDamageGridHost.cs" />
+    <Compile Include="Grids\FormWeaponDamage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Grids\FormWeaponDamage.Designer.cs">
+      <DependentUpon>FormWeaponDamage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Grids\Generic\FormCellEdit.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,6 +128,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormNewRow.resx">
       <DependentUpon>FormNewRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Grids\FormWeaponDamage.resx">
+      <DependentUpon>FormWeaponDamage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

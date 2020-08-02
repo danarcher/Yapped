@@ -29,6 +29,9 @@ namespace Yapped
         private Grid paramsGrid, rowsGrid, cellsGrid;
         private SelectionMemory memory;
 
+        private ToolStripMenuItem toolsMenu;
+        private ToolStripMenuItem toolsWeaponDamage;
+
         public FormMain()
         {
             InitializeComponent();
@@ -55,6 +58,17 @@ namespace Yapped
             cellsGrid.BringToFront();
 
             memory = new SelectionMemory();
+
+            var fileExit = new ToolStripMenuItem("E&xit");
+            fileToolStripMenuItem.DropDownItems.Add("-");
+            fileToolStripMenuItem.DropDownItems.Add(fileExit);
+            fileExit.Click += (s, e) => Close();
+
+            toolsMenu = new ToolStripMenuItem("&Tools");
+            menuStrip1.Items.Add(toolsMenu);
+            toolsWeaponDamage = new ToolStripMenuItem("&Weapon Damage");
+            toolsMenu.DropDownItems.Add(toolsWeaponDamage);
+            toolsWeaponDamage.Click += (s, e) => FormWeaponDamage.ShowDialog(largeFont, ((ParamsGridHost)paramsGrid.Host).DataSource);
         }
 
         private async void FormMain_Load(object sender, EventArgs e)
