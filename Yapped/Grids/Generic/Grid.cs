@@ -36,10 +36,14 @@ namespace Yapped.Grids.Generic
             toolTip = new ToolTip();
 
             BorderColor = SystemColors.ControlDark;
-            SelectedRowBackColor = SystemColors.Control;
-            SelectedRowForeColor = SystemColors.ControlText;
-            SelectedCellBackColor = SystemColors.Highlight;
-            SelectedCellForeColor = SystemColors.HighlightText;
+            FocusedSelectedRowBackColor = SystemColors.Control;
+            FocusedSelectedRowForeColor = SystemColors.ControlText;
+            FocusedSelectedCellBackColor = SystemColors.Highlight;
+            FocusedSelectedCellForeColor = SystemColors.HighlightText;
+            SelectedRowBackColor = FocusedSelectedRowBackColor;
+            SelectedRowForeColor = FocusedSelectedRowForeColor;
+            SelectedCellBackColor = Color.FromArgb(141, 197, 239);
+            SelectedCellForeColor = Color.Black;
 
             leftAlignedFormat = new StringFormat(StringFormat.GenericDefault);
             leftAlignedFormat.Alignment = StringAlignment.Near;
@@ -151,6 +155,10 @@ namespace Yapped.Grids.Generic
         public int RowCount => host?.RowCount ?? 0;
 
         public Color BorderColor { get; set; }
+        public Color FocusedSelectedRowBackColor { get; set; }
+        public Color FocusedSelectedRowForeColor { get; set; }
+        public Color FocusedSelectedCellBackColor { get; set; }
+        public Color FocusedSelectedCellForeColor { get; set; }
         public Color SelectedRowBackColor { get; set; }
         public Color SelectedRowForeColor { get; set; }
         public Color SelectedCellBackColor { get; set; }
@@ -408,6 +416,18 @@ namespace Yapped.Grids.Generic
             base.OnKeyDown(e);
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            Invalidate();
+            base.OnGotFocus(e);
+        }
+
+        protected override void OnLostFocus(EventArgs e)
+        {
+            Invalidate();
+            base.OnLostFocus(e);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -463,13 +483,13 @@ namespace Yapped.Grids.Generic
                             style.BorderColor = SystemColors.ControlDark;
                             if (style.SelectedCell)
                             {
-                                style.BackColor = SelectedCellBackColor;
-                                style.ForeColor = SelectedCellForeColor;
+                                style.BackColor = Focused ? FocusedSelectedCellBackColor : SelectedCellBackColor;
+                                style.ForeColor = Focused ? FocusedSelectedCellForeColor : SelectedCellForeColor;
                             }
                             else if (style.SelectedRow)
                             {
-                                style.BackColor = SelectedRowBackColor;
-                                style.ForeColor = SelectedRowForeColor;
+                                style.BackColor = Focused ? FocusedSelectedRowBackColor : SelectedRowBackColor;
+                                style.ForeColor = Focused ? FocusedSelectedRowForeColor : SelectedRowForeColor;
                             }
                             style.BackBrush = null;
                             style.ForeBrush = null;
