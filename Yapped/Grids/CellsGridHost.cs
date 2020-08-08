@@ -76,11 +76,11 @@ namespace Yapped.Grids
             switch (columnIndex)
             {
                 case 0:
-                    return 50;
+                    return grid.Font.Height * 2;
                 case 1:
-                    return 400;
+                    return grid.Font.Height * 16;
                 case 2:
-                    return grid.ClientSize.Width - 450;
+                    return grid.ClientSize.Width - grid.Font.Height * 18;
                 default:
                     return 0;
             }

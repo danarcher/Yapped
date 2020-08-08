@@ -24,31 +24,30 @@ namespace Yapped
 
         private Grid paramsGrid, rowsGrid, cellsGrid;
         private SelectionMemory memory;
+        private Font largeFont;
 
         private ToolStripMenuItem toolsMenu;
         private ToolStripMenuItem toolsWeaponDamage;
+        private ToolStripMenuItem toolsFontSizeIncrease;
+        private ToolStripMenuItem toolsFontSizeDecrease;
 
         public FormMain()
         {
             InitializeComponent();
             lastFindRowPattern = "";
 
-            var largeFont = new Font("Segoe UI", 12.0f);
             paramsGrid = new Grid();
             splitContainer2.Panel1.Controls.Add(paramsGrid);
-            paramsGrid.Font = largeFont;
             paramsGrid.Dock = DockStyle.Fill;
             paramsGrid.BringToFront();
 
             rowsGrid = new Grid();
             splitContainer1.Panel1.Controls.Add(rowsGrid);
-            rowsGrid.Font = largeFont;
             rowsGrid.Dock = DockStyle.Fill;
             rowsGrid.BringToFront();
 
             cellsGrid = new Grid();
             splitContainer1.Panel2.Controls.Add(cellsGrid);
-            cellsGrid.Font = largeFont;
             cellsGrid.Dock = DockStyle.Fill;
             cellsGrid.BringToFront();
 
@@ -64,6 +63,16 @@ namespace Yapped
             toolsWeaponDamage = new ToolStripMenuItem("&Weapon Damage");
             toolsMenu.DropDownItems.Add(toolsWeaponDamage);
             toolsWeaponDamage.Click += (s, e) => FormWeaponDamage.ShowDialog(largeFont, root);
+            toolsMenu.DropDownItems.Add("-");
+            var toolsFontSize = (ToolStripMenuItem)toolsMenu.DropDownItems.Add("&Font Size");
+            toolsFontSizeDecrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Smaller");
+            toolsFontSizeDecrease.Click += (s, e) => AdjustFontSize(-1);
+            toolsFontSizeDecrease.ShortcutKeys = Keys.Control | Keys.OemMinus;
+            toolsFontSizeDecrease.ShortcutKeyDisplayString = "Ctrl+Minus";
+            toolsFontSizeIncrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Larger");
+            toolsFontSizeIncrease.Click += (s, e) => AdjustFontSize(1);
+            toolsFontSizeIncrease.ShortcutKeys = Keys.Control | Keys.Oemplus;
+            toolsFontSizeIncrease.ShortcutKeyDisplayString = "Ctrl+Plus";
 
             EnableDisable();
         }
@@ -89,6 +98,7 @@ namespace Yapped
             verifyDeletionsToolStripMenuItem.Checked = settings.VerifyRowDeletion;
             splitContainer2.SplitterDistance = settings.SplitterDistance2;
             splitContainer1.SplitterDistance = settings.SplitterDistance1;
+            UpdateFontSize();
 
             memory.Load(settings.DGVIndices);
             LoadParams(settings.RegulationPath);
@@ -96,6 +106,30 @@ namespace Yapped
             Util.CheckForUpdatesAsync().ContinueWith(x => updateToolStripMenuItem.Visible = x.Result);
 
             base.OnLoad(e);
+        }
+
+        private void AdjustFontSize(float delta)
+        {
+            var newFontSize = settings.FontSize + delta;
+            if (newFontSize > 0 && newFontSize < 100)
+            {
+                settings.FontSize = newFontSize;
+                UpdateFontSize();
+            }
+        }
+
+        private void UpdateFontSize()
+        {
+            largeFont?.Dispose();
+            if (settings.FontSize <= 0)
+            {
+                settings.FontSize = (int)Font.Size;
+            }
+            largeFont = new Font(Font.FontFamily, settings.FontSize, Font.Style);
+            paramsGrid.Font = largeFont;
+            rowsGrid.Font = largeFont;
+            cellsGrid.Font = largeFont;
+            Invalidate(true);
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)

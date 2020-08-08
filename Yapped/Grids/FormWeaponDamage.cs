@@ -19,12 +19,13 @@ namespace Yapped.Grids
         }
 
         public ParamRoot Root { get; set; }
+        public Font GridFont { get; set; }
 
         public static void ShowDialog(Font font, ParamRoot root)
         {
             using (var form = new FormWeaponDamage())
             {
-                form.Font = font;
+                form.GridFont = font;
                 form.Root = root;
                 form.ShowDialog();
             }
@@ -35,6 +36,7 @@ namespace Yapped.Grids
             grid = new Grid();
             panel.Controls.Add(grid);
             grid.Dock = DockStyle.Fill;
+            grid.Font = GridFont;
             grid.Host = host = new WeaponDamageGridHost(grid) { DataSource = results }; ;
             ComputeWeaponDamage();
             grid.InvalidateDataSource();

@@ -263,6 +263,12 @@ namespace Yapped.Grids.Generic
             base.OnResize(e);
         }
 
+        protected override void OnFontChanged(EventArgs e)
+        {
+            UpdateScrollBar();
+            base.OnFontChanged(e);
+        }
+
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             var delta = 8;
