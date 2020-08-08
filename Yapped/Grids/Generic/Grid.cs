@@ -624,7 +624,7 @@ namespace Yapped.Grids.Generic
 
         private bool HitTestColumnHeader(Point p, out int columnIndex)
         {
-            for (var testColumnIndex = 0; testColumnIndex < host.ColumnCount; ++testColumnIndex)
+            for (var testColumnIndex = 0; testColumnIndex < host?.ColumnCount; ++testColumnIndex)
             {
                 if (TryGetColumnHeaderBounds(testColumnIndex, out Rectangle rect) && rect.Contains(p))
                 {
