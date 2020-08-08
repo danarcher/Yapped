@@ -10,6 +10,8 @@ namespace Yapped.Grids.Generic
         int ColumnCount { get; }
         int RowCount { get; }
 
+        void Initialize(Grid grid);
+
         string GetColumnName(int columnIndex);
         int GetColumnWidth(Grid grid, int olumnIndex);
 

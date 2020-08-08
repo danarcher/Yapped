@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace Yapped.Grids
 {
@@ -8,6 +10,8 @@ namespace Yapped.Grids
     /// </summary>
     internal class SelectionMemory
     {
+        public int SelectedParam { get; set; }
+        public int TopParam { get; set; }
         public Instance SelectedRow { get; } = new Instance();
         public Instance SelectedCell { get; } = new Instance();
         public Instance TopRow { get; } = new Instance();
@@ -41,20 +45,33 @@ namespace Yapped.Grids
 
         public void Load(string saved)
         {
-            //foreach (Match match in Regex.Matches(settings.DGVIndices, @"[^,]+"))
-            //{
-            //    string[] components = match.Value.Split(':');
-            //    dgvIndices[components[0]] = (int.Parse(components[1]), int.Parse(components[2]));
-            //}
+            var parts = saved.Split(';');
+            if (parts.Length >= 6)
+            {
+                if (int.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out int selectedParam))
+                {
+                    SelectedParam = selectedParam;
+                }
+                if (int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out int topParam))
+                {
+                    TopParam = topParam;
+                }
+                SelectedRow.Load(parts[2]);
+                SelectedCell.Load(parts[3]);
+                TopRow.Load(parts[4]);
+                TopCell.Load(parts[5]);
+            }
         }
 
         public string Save()
         {
-            //var components = new List<string>();
-            //foreach (string key in dgvIndices.Keys)
-            //    components.Add($"{key}:{dgvIndices[key].Row}:{dgvIndices[key].Cell}");
-            //settings.DGVIndices = string.Join(",", components);
-            return string.Empty;
+            return string.Join(";",
+                SelectedParam.ToString(CultureInfo.InvariantCulture),
+                TopParam.ToString(CultureInfo.InvariantCulture),
+                SelectedRow.Save(),
+                SelectedCell.Save(),
+                TopRow.Save(),
+                TopCell.Save());
         }
 
         public class Instance
@@ -85,6 +102,26 @@ namespace Yapped.Grids
                     return false;
                 }
                 return true;
+            }
+
+            public void Load(string saved)
+            {
+                map.Clear();
+                var pairs = saved.Split(',');
+                foreach (var pair in pairs)
+                {
+                    var parts = pair.Split('=');
+                    if (parts.Length == 2 && int.TryParse(parts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out int value))
+                    {
+                        map.Add(parts[0], value);
+                    }
+                }
+
+            }
+
+            public string Save()
+            {
+                return string.Join(",", map.Keys.Select(x => $"{x}={map[x].ToString(CultureInfo.InvariantCulture)}"));
             }
         }
 

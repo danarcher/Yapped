@@ -25,6 +25,8 @@ namespace Yapped.Grids.Generic
         public abstract int ColumnCount { get; }
         public abstract int RowCount { get; }
 
+        public virtual void Initialize(Grid grid) { }
+
         public abstract string GetCellDisplayValue(int rowIndex, int columnIndex);
         public virtual string GetCellToolTip(int rowIndex, int columnIndex) => string.Empty;
 

@@ -529,6 +529,7 @@ namespace Yapped.Grids.Generic
             UpdateScrollBar();
             Invalidate();
             ClearSelection();
+            host?.Initialize(this);
         }
 
         private void OnScrollBarValueChanged(object sender, EventArgs e)

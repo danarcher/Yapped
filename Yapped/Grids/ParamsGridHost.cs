@@ -9,6 +9,7 @@ namespace Yapped.Grids
     /// </summary>
     internal class ParamsGridHost : GridHost<IList<ParamWrapper>>
     {
+        private bool initialized = false;
         private readonly SelectionMemory memory;
         private readonly Grid rowsGrid;
         private readonly Grid cellsGrid;
@@ -22,6 +23,15 @@ namespace Yapped.Grids
 
         public override int ColumnCount => 1;
         public override int RowCount => DataSource?.Count ?? 0;
+
+        public override void Initialize(Grid grid)
+        {
+            grid.ScrollTop = memory.TopParam;
+            grid.SelectedRowIndex = memory.SelectedParam;
+            grid.SelectedColumnIndex = 0;
+            initialized = true;
+        }
+
         public override string GetCellDisplayValue(int rowIndex, int columnIndex) => DataSource[rowIndex].Name;
         public override string GetCellToolTip(int rowIndex, int columnIndex) => DataSource[rowIndex].Description;
         public override string GetColumnName(int columnIndex) => "Name";
@@ -32,6 +42,10 @@ namespace Yapped.Grids
             if (selectedRowIndex >= 0)
             {
                 // Remember the selected param.
+                if (initialized)
+                {
+                    memory.SelectedParam = selectedRowIndex;
+                }
                 memory.StoreParamName(DataSource[selectedRowIndex].Name);
             }
 
@@ -59,6 +73,14 @@ namespace Yapped.Grids
                 {
                     rowsGrid.ScrollTop = recallTop;
                 }
+            }
+        }
+
+        public override void ScrollTopChanged(int scrollTop)
+        {
+            if (initialized)
+            {
+                memory.TopParam = scrollTop;
             }
         }
 
