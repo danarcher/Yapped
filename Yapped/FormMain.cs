@@ -1,5 +1,4 @@
-﻿using Semver;
-using SoulsFormats;
+﻿using SoulsFormats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +8,6 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Yapped.Grids;
 using Yapped.Grids.Generic;
@@ -19,7 +17,6 @@ namespace Yapped
 {
     public partial class FormMain : Form
     {
-        private const string UPDATE_URL = "https://www.nexusmods.com/sekiro/mods/121?tab=files";
         private static Properties.Settings settings = Properties.Settings.Default;
 
         private ParamRoot root;
@@ -96,24 +93,9 @@ namespace Yapped
             memory.Load(settings.DGVIndices);
             LoadParams(settings.RegulationPath);
 
-            _ = CheckForUpdatesAsync();
+            Util.CheckForUpdatesAsync().ContinueWith(x => updateToolStripMenuItem.Visible = x.Result);
 
             base.OnLoad(e);
-        }
-
-        private async Task CheckForUpdatesAsync()
-        {
-            Octokit.GitHubClient gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Yapped"));
-            try
-            {
-                Octokit.Release release = await gitHubClient.Repository.Release.GetLatest("JKAnderson", "Yapped");
-                if (SemVersion.Parse(release.TagName) > Application.ProductVersion)
-                {
-                    updateToolStripMenuItem.Visible = true;
-                }
-            }
-            // Oh well.
-            catch { }
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -516,7 +498,7 @@ namespace Yapped
 
         private void UpdateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start(UPDATE_URL);
+            Process.Start(Util.UpdateUrl);
         }
 
         //private void FormatDgvCells()
