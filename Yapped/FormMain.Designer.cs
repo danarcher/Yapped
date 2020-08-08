@@ -358,7 +358,6 @@
             this.Name = "FormMain";
             this.Text = "Yapped <version>";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
-            this.Load += new System.EventHandler(this.FormMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer2.Panel2.ResumeLayout(false);

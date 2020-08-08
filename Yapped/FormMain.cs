@@ -9,6 +9,7 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Yapped.Grids;
 using Yapped.Grids.Generic;
@@ -21,9 +22,7 @@ namespace Yapped
         private const string UPDATE_URL = "https://www.nexusmods.com/sekiro/mods/121?tab=files";
         private static Properties.Settings settings = Properties.Settings.Default;
 
-        private string regulationPath;
-        private IBinder regulation;
-        private bool encrypted;
+        private ParamRoot root;
         private string lastFindRowPattern, lastFindFieldPattern;
 
         private Grid paramsGrid, rowsGrid, cellsGrid;
@@ -35,7 +34,6 @@ namespace Yapped
         public FormMain()
         {
             InitializeComponent();
-            regulation = null;
             lastFindRowPattern = "";
 
             var largeFont = new Font("Segoe UI", 12.0f);
@@ -68,10 +66,12 @@ namespace Yapped
             menuStrip1.Items.Add(toolsMenu);
             toolsWeaponDamage = new ToolStripMenuItem("&Weapon Damage");
             toolsMenu.DropDownItems.Add(toolsWeaponDamage);
-            toolsWeaponDamage.Click += (s, e) => FormWeaponDamage.ShowDialog(largeFont, ((ParamsGridHost)paramsGrid.Host).DataSource);
+            toolsWeaponDamage.Click += (s, e) => FormWeaponDamage.ShowDialog(largeFont, root);
+
+            EnableDisable();
         }
 
-        private async void FormMain_Load(object sender, EventArgs e)
+        protected override void OnLoad(EventArgs e)
         {
             Text = "Yapped " + Application.ProductVersion;
 
@@ -88,15 +88,21 @@ namespace Yapped
             if (toolStripComboBoxGame.SelectedIndex == -1)
                 toolStripComboBoxGame.SelectedIndex = 0;
 
-            regulationPath = settings.RegulationPath;
             hideUnusedParamsToolStripMenuItem.Checked = settings.HideUnusedParams;
             verifyDeletionsToolStripMenuItem.Checked = settings.VerifyRowDeletion;
             splitContainer2.SplitterDistance = settings.SplitterDistance2;
             splitContainer1.SplitterDistance = settings.SplitterDistance1;
 
             memory.Load(settings.DGVIndices);
-            LoadParams();
+            LoadParams(settings.RegulationPath);
 
+            _ = CheckForUpdatesAsync();
+
+            base.OnLoad(e);
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
             Octokit.GitHubClient gitHubClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("Yapped"));
             try
             {
@@ -125,7 +131,7 @@ namespace Yapped
             }
 
             settings.GameType = ((GameMode)toolStripComboBoxGame.SelectedItem).Game.ToString();
-            settings.RegulationPath = regulationPath;
+            settings.RegulationPath = root?.Path ?? settings.RegulationPath;
             settings.HideUnusedParams = hideUnusedParamsToolStripMenuItem.Checked;
             settings.VerifyRowDeletion = verifyDeletionsToolStripMenuItem.Checked;
             settings.SplitterDistance2 = splitContainer2.SplitterDistance;
@@ -133,77 +139,58 @@ namespace Yapped
             settings.DGVIndices = memory.Save();
         }
 
-        private void LoadParams()
+        private void LoadParams(string path)
         {
-            string resDir = GetResRoot();
-            Dictionary<string, PARAM.Layout> layouts = Util.LoadLayouts($@"{resDir}\Layouts");
-            Dictionary<string, ParamInfo> paramInfo = ParamInfo.ReadParamInfo($@"{resDir}\ParamInfo.xml");
-            var gameMode = (GameMode)toolStripComboBoxGame.SelectedItem;
-            LoadParamsResult result = Util.LoadParams(regulationPath, paramInfo, layouts, gameMode, hideUnusedParamsToolStripMenuItem.Checked);
+            try
+            {
+                root = ParamRoot.Load(path,
+                    (GameMode)toolStripComboBoxGame.SelectedItem,
+                    hideUnusedParamsToolStripMenuItem.Checked,
+                    GetResRoot());
+                paramsGrid.Host = new ParamsGridHost(memory, rowsGrid, cellsGrid) { DataSource = root };
+                EnableDisable();
+            }
+            catch (Exception ex)
+            {
+                exportNamesToolStripMenuItem.Enabled = false;
+                Util.ShowError(ex.Message);
+            }
 
-            if (result == null)
-            {
-                exportToolStripMenuItem.Enabled = false;
-            }
-            else
-            {
-                encrypted = result.Encrypted;
-                regulation = result.ParamBND;
-                exportToolStripMenuItem.Enabled = encrypted;
-                paramsGrid.Host = new ParamsGridHost(memory, rowsGrid, cellsGrid) { DataSource = result.ParamWrappers };
-                toolStripStatusLabel1.Text = regulationPath;
-            }
+        }
+
+        private void EnableDisable()
+        {
+            var loaded = root != null;
+            exportToolStripMenuItem.Enabled = loaded;
+            saveToolStripMenuItem.Enabled = loaded;
+            restoreToolStripMenuItem.Enabled = loaded;
+            exploreToolStripMenuItem.Enabled = loaded;
+            exportToolStripMenuItem.Enabled = loaded && root.CanExport;
+            editToolStripMenuItem.Enabled = loaded;
+            toolsMenu.Enabled = loaded;
+            toolStripStatusLabel1.Text = root?.Path ?? string.Empty;
         }
 
         #region File Menu
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ofdRegulation.FileName = regulationPath;
+            ofdRegulation.FileName = root?.Path;
             if (ofdRegulation.ShowDialog() == DialogResult.OK)
             {
-                regulationPath = ofdRegulation.FileName;
-                LoadParams();
+                LoadParams(ofdRegulation.FileName);
             }
         }
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (BinderFile file in regulation.Files)
-            {
-                var paramFiles = ((ParamsGridHost)paramsGrid.Host).DataSource;
-                foreach (var paramFile in paramFiles)
-                {
-                    if (Path.GetFileNameWithoutExtension(file.Name) == paramFile.Name)
-                        file.Bytes = paramFile.Param.Write();
-                }
-            }
-
-            var gameMode = (GameMode)toolStripComboBoxGame.SelectedItem;
-            if (!File.Exists(regulationPath + ".bak"))
-                File.Copy(regulationPath, regulationPath + ".bak");
-
-            if (encrypted)
-            {
-                if (gameMode.Game == GameType.DarkSouls2)
-                    Util.EncryptDS2Regulation(regulationPath, regulation as BND4);
-                else if (gameMode.Game == GameType.DarkSouls3)
-                    SFUtil.EncryptDS3Regulation(regulationPath, regulation as BND4);
-                else
-                    Util.ShowError("Encryption is only valid for DS2 and DS3.");
-            }
-            else
-            {
-                if (regulation is BND3 bnd3)
-                    bnd3.Write(regulationPath);
-                else if (regulation is BND4 bnd4)
-                    bnd4.Write(regulationPath);
-            }
+            root.Save((GameMode)toolStripComboBoxGame.SelectedItem);
             SystemSounds.Asterisk.Play();
         }
 
         private void RestoreToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (File.Exists(regulationPath + ".bak"))
+            var backupPath = root.Path + ".bak";
+            if (File.Exists(backupPath))
             {
                 DialogResult choice = MessageBox.Show("Are you sure you want to restore the backup?",
                     "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -211,19 +198,19 @@ namespace Yapped
                 {
                     try
                     {
-                        File.Copy(regulationPath + ".bak", regulationPath, true);
-                        LoadParams();
+                        File.Copy(backupPath, root.Path, true);
+                        LoadParams(root.Path);
                         SystemSounds.Asterisk.Play();
                     }
                     catch (Exception ex)
                     {
-                        Util.ShowError($"Failed to restore backup\r\n\r\n{regulationPath}.bak\r\n\r\n{ex}");
+                        Util.ShowError($"Failed to restore backup\r\n\r\n{backupPath}\r\n\r\n{ex}");
                     }
                 }
             }
             else
             {
-                Util.ShowError($"There is no backup to restore at:\r\n\r\n{regulationPath}.bak");
+                Util.ShowError($"There is no backup to restore at:\r\n\r\n{backupPath}");
             }
         }
 
@@ -231,7 +218,7 @@ namespace Yapped
         {
             try
             {
-                Process.Start(Path.GetDirectoryName(regulationPath));
+                Process.Start(Path.GetDirectoryName(root.Path));
             }
             catch
             {
@@ -241,45 +228,16 @@ namespace Yapped
 
         private void ExportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var bnd4 = regulation as BND4;
-            fbdExport.SelectedPath = Path.GetDirectoryName(regulationPath);
+            fbdExport.SelectedPath = Path.GetDirectoryName(root.Path);
             if (fbdExport.ShowDialog() == DialogResult.OK)
             {
-                BND4 paramBND = new BND4
-                {
-                    BigEndian = false,
-                    Compression = DCX.Type.DarkSouls3,
-                    Extended = 0x04,
-                    Flag1 = false,
-                    Flag2 = false,
-                    Format = Binder.Format.x74,
-                    Timestamp = bnd4.Timestamp,
-                    Unicode = true,
-                    Files = regulation.Files.Where(f => f.Name.EndsWith(".param")).ToList()
-                };
-
-                BND4 stayBND = new BND4
-                {
-                    BigEndian = false,
-                    Compression = DCX.Type.DarkSouls3,
-                    Extended = 0x04,
-                    Flag1 = false,
-                    Flag2 = false,
-                    Format = Binder.Format.x74,
-                    Timestamp = bnd4.Timestamp,
-                    Unicode = true,
-                    Files = regulation.Files.Where(f => f.Name.EndsWith(".stayparam")).ToList()
-                };
-
-                string dir = fbdExport.SelectedPath;
                 try
                 {
-                    paramBND.Write($@"{dir}\gameparam_dlc2.parambnd.dcx");
-                    stayBND.Write($@"{dir}\stayparam.parambnd.dcx");
+                    root.Export(fbdExport.SelectedPath);
                 }
                 catch (Exception ex)
                 {
-                    Util.ShowError($"Failed to write exported parambnds.\r\n\r\n{ex}");
+                    Util.ShowError(ex.Message);
                 }
             }
         }
@@ -376,8 +334,7 @@ namespace Yapped
                 "Importing Names", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 
             string namesDir = $@"{GetResRoot()}\Names";
-            List<ParamWrapper> paramFiles = ((ParamsGridHost)paramsGrid.Host).DataSource;
-            foreach (ParamWrapper paramFile in paramFiles)
+            foreach (ParamWrapper paramFile in root)
             {
                 if (File.Exists($@"{namesDir}\{paramFile.Name}.txt"))
                 {
@@ -411,8 +368,7 @@ namespace Yapped
         private void ExportNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string namesDir = $@"{GetResRoot()}\Names";
-            List<ParamWrapper> paramFiles = ((ParamsGridHost)paramsGrid.Host).DataSource;
-            foreach (ParamWrapper paramFile in paramFiles)
+            foreach (ParamWrapper paramFile in root)
             {
                 StringBuilder sb = new StringBuilder();
                 foreach (PARAM.Row row in paramFile.Param.Rows)

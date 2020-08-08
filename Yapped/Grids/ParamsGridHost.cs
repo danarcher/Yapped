@@ -7,7 +7,7 @@ namespace Yapped.Grids
     /// <summary>
     /// The grid host for the leftmost "params" grid.
     /// </summary>
-    internal class ParamsGridHost : GridHost<List<ParamWrapper>>
+    internal class ParamsGridHost : GridHost<IList<ParamWrapper>>
     {
         private readonly SelectionMemory memory;
         private readonly Grid rowsGrid;

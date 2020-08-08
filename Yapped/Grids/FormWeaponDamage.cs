@@ -18,14 +18,14 @@ namespace Yapped.Grids
             InitializeComponent();
         }
 
-        public List<ParamWrapper> Params { get; set; }
+        public ParamRoot Root { get; set; }
 
-        public static void ShowDialog(Font font, List<ParamWrapper> @params)
+        public static void ShowDialog(Font font, ParamRoot root)
         {
             using (var form = new FormWeaponDamage())
             {
                 form.Font = font;
-                form.Params = @params;
+                form.Root = root;
                 form.ShowDialog();
             }
         }
@@ -66,10 +66,10 @@ namespace Yapped.Grids
 
         private void ComputeWeaponDamage()
         {
-            var equipParamWeapon = Params.First(x => x.Name == "EquipParamWeapon");
-            var reinforceParamWeapon = Params.First(x => x.Name == "ReinforceParamWeapon");
-            var calcCorrectGraph = Params.First(x => x.Name == "CalcCorrectGraph");
-            var attackElementCorrectParam = Params.First(x => x.Name == "AttackElementCorrectParam");
+            var equipParamWeapon = Root["EquipParamWeapon"];
+            var reinforceParamWeapon = Root["ReinforceParamWeapon"];
+            var attackElementCorrectParam = Root["AttackElementCorrectParam"];
+            var calcCorrectGraph = Root["CalcCorrectGraph"];
 
             var stats = new int[]
             {
@@ -83,7 +83,7 @@ namespace Yapped.Grids
             results.Clear();
             foreach (var weapon in equipParamWeapon.Rows)
             {
-                var calc = new WeaponDamageCalculator(weapon, reinforceParamWeapon, attackElementCorrectParam, Params);
+                var calc = new WeaponDamageCalculator(weapon, reinforceParamWeapon, attackElementCorrectParam, calcCorrectGraph);
                 var result = calc.Calculate(stats);
                 results.Add(result);
             }

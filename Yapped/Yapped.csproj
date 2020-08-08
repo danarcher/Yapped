@@ -112,6 +112,7 @@
     <Compile Include="Grids\ParamsGridHost.cs" />
     <Compile Include="Grids\RowsGridHost.cs" />
     <Compile Include="Grids\SelectionMemory.cs" />
+    <Compile Include="ParamRoot.cs" />
     <Compile Include="ParamInfo.cs" />
     <Compile Include="ParamWrapper.cs" />
     <Compile Include="Program.cs" />

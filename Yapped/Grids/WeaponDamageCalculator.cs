@@ -62,7 +62,7 @@ namespace Yapped
         public float[] BaseDamage = new float[DamageType.Count];
         public float[] Damage = new float[DamageType.Count];
 
-        public WeaponDamageCalculator(PARAM.Row weapon, ParamWrapper reinforceParamWeapon, ParamWrapper attackElementCorrectParam, List<ParamWrapper> param)
+        public WeaponDamageCalculator(PARAM.Row weapon, ParamWrapper reinforceParamWeapon, ParamWrapper attackElementCorrectParam, ParamWrapper calcCorrectGraph)
         {
             BaseWeaponName = weapon.Name;
             Buffable = (bool)weapon["isEnhance"].Value;
@@ -108,7 +108,7 @@ namespace Yapped
                 AttackBase[i] = (short)weapon[AttackBaseNames[i]].Value;
                 AttackRate[i] = (float)Reinforcement[AttackRateNames[i]].Value;
                 DamageGraphId[i] = (byte)weapon[DamageGraphIdNames[i]].Value;
-                DamageGraph[i] = new CalcCorrectGraph(param, DamageGraphId[i]);
+                DamageGraph[i] = new CalcCorrectGraph(calcCorrectGraph, DamageGraphId[i]);
 
                 for (var j = 0; j < Stat.Count; ++j)
                 {
@@ -185,9 +185,8 @@ namespace Yapped
         private float adjPtMaxGrowVal3;
         private float adjPtMaxGrowVal4;
 
-        public CalcCorrectGraph(List<ParamWrapper> param, int statFuncId)
+        public CalcCorrectGraph(ParamWrapper calcCorrectGraph, int statFuncId)
         {
-            var calcCorrectGraph = param.First(x => x.Name == "CalcCorrectGraph");
             var item = calcCorrectGraph.Rows.First(x => x.ID == statFuncId);
 
             stageMaxVal0 = (float)item["stageMaxVal0"].Value;
@@ -216,11 +215,11 @@ namespace Yapped
             {
                 return Calculate(stat, stageMaxVal0, stageMaxVal1, stageMaxGrowVal0, stageMaxGrowVal1, adjPtMaxGrowVal0);
             }
-            else if (stat < stageMaxGrowVal1)
+            else if (stat < stageMaxVal1)
             {
                 return Calculate(stat, stageMaxVal1, stageMaxVal2, stageMaxGrowVal1, stageMaxGrowVal2, adjPtMaxGrowVal1);
             }
-            else if (stat < stageMaxGrowVal2)
+            else if (stat < stageMaxVal2)
             {
                 return Calculate(stat, stageMaxVal2, stageMaxVal3, stageMaxGrowVal2, stageMaxGrowVal3, adjPtMaxGrowVal2);
             }
