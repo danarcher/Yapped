@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using SoulsFormats;
 using Yapped.Grids.Generic;
 
@@ -9,38 +10,66 @@ namespace Yapped.Grids
     /// </summary>
     internal class CellsGridHost : GridHost<PARAM.Cell[]>
     {
-        private readonly SelectionMemory memory;
+        private readonly History history;
+        private readonly GridSet grids;
+        private ParamLayoutExtra extras;
 
-        public CellsGridHost(SelectionMemory memory)
+        public CellsGridHost(History history, GridSet grids)
         {
-            this.memory = memory;
+            this.history = history;
+            this.grids = grids;
         }
 
+        public bool Initialized { get; set; }
         public override int ColumnCount => 3;
-
         public override int RowCount => DataSource?.Length ?? 0;
+
+        public override void Initialize(Grid grid)
+        {
+            grid.SelectedRowIndex = history.Current[history.Current.Params.Selected].Cells.Selected;
+            grid.SelectedColumnIndex = 1;
+            grid.ScrollToSelection();
+            extras = grids.Params.SelectedRowIndex >= 0 ? grids.ParamsHost.DataSource[grids.Params.SelectedRowIndex].Extra : null;
+            Initialized = true;
+        }
 
         public override string GetCellDisplayValue(int rowIndex, int columnIndex)
         {
             var item = DataSource[rowIndex];
+            string text;
             switch (columnIndex)
             {
                 case 0:
                     return item.Type.ToString();
                 case 1:
-                    return item.Name?.ToString() ?? string.Empty;
+                    text = item.Name?.ToString() ?? string.Empty;
+                    var extra = GetExtra(rowIndex);
+                    if (!string.IsNullOrWhiteSpace(extra?.DisplayName))
+                    {
+                        text = extra.DisplayName;
+                    }
+                    return text;
                 case 2:
                     switch (item.Type)
                     {
                         case PARAM.CellType.x8:
-                            return $"0x{item.Value:X2}";
+                            text = $"0x{item.Value:X2}";
+                            break;
                         case PARAM.CellType.x16:
-                            return $"0x{item.Value:X4}";
+                            text = $"0x{item.Value:X4}";
+                            break;
                         case PARAM.CellType.x32:
-                            return $"0x{item.Value:X8}";
+                            text = $"0x{item.Value:X8}";
+                            break;
                         default:
-                            return DataSource[rowIndex].Value?.ToString() ?? string.Empty;
+                            text = DataSource[rowIndex].Value?.ToString() ?? string.Empty;
+                            break;
                     }
+                    if (InspectLink(rowIndex, out LinkInfo linkInfo) == LinkStatus.Valid)
+                    {
+                        text += $" {linkInfo.TargetParam.Name} {linkInfo.TargetRow.Name}";
+                    }
+                    return text;
                 default:
                     return string.Empty;
             }
@@ -99,19 +128,25 @@ namespace Yapped.Grids
                 }
                 style.Bold = true;
             }
+            
+            // Style links.
+            base.ModifyCellStyle(rowIndex, columnIndex, style);
+            
+            // Highlight invalid links.
+            if (columnIndex == 2 && InspectLink(rowIndex) == LinkStatus.Invalid)
+            {
+                style.BackColor = Color.Pink;
+                style.ForeColor = Color.Black;
+                style.Underline = false;
+            }
         }
 
         public override void SelectionChanged(int selectedRowIndex, int selectedColumnIndex)
         {
-            if (selectedRowIndex >= 0)
+            if (Initialized)
             {
-                memory.SelectedCell.StoreValue(selectedRowIndex);
+                history.Current[history.Current.Params.Selected].Cells.Selected = selectedRowIndex;
             }
-        }
-
-        public override void ScrollTopChanged(int scrollTop)
-        {
-            memory.TopCell.StoreValue(scrollTop);
         }
 
         public override GridCellType GetCellEditType(int rowIndex, int columnIndex)
@@ -180,6 +215,125 @@ namespace Yapped.Grids
                 default:
                     break;
             }
+        }
+
+        public override bool IsLinkClickable(int rowIndex, int columnIndex)
+        {
+            return columnIndex == 2 && InspectLink(rowIndex) == LinkStatus.Valid;
+        }
+
+        public override void LinkClicked(int rowIndex, int columnIndex)
+        {
+            if (InspectLink(rowIndex, out LinkInfo linkInfo) != LinkStatus.Valid)
+            {
+                return;
+            }
+
+            history.Push();
+            grids.Params.SelectedRowIndex = linkInfo.TargetParamIndex;
+            grids.Params.ScrollToSelection();
+            grids.Rows.SelectedRowIndex = linkInfo.TargetRowIndex;
+            grids.Rows.ScrollToSelection();
+        }
+
+        private ParamLayoutExtra.Entry GetExtra(int rowIndex)
+        {
+            extras.Entries.TryGetValue(DataSource[rowIndex].Name, out ParamLayoutExtra.Entry entry);
+            return entry;
+        }
+
+        private LinkStatus InspectLink(int rowIndex) => InspectLink(rowIndex, out _);
+
+        private LinkStatus InspectLink(int rowIndex, out LinkInfo linkInfo)
+        {
+            switch (DataSource[rowIndex].Type)
+            {
+                case PARAM.CellType.dummy8:
+                case PARAM.CellType.fixstr:
+                case PARAM.CellType.fixstrW:
+                    // These data types are never indices into a param's rows.
+                    linkInfo = null;
+                    return LinkStatus.None;
+            }
+
+            var extra = GetExtra(rowIndex);
+            if (extra == null)
+            {
+                // We have no extra information for this param, hence no links.
+                linkInfo = null;
+                return LinkStatus.None;
+            }
+
+            if (extra.Links.Count == 0)
+            {
+                // We have no links.
+                linkInfo = null;
+                return LinkStatus.None;
+            }
+
+            var value = Convert.ToInt64(DataSource[rowIndex].Value);
+            if (value < 0)
+            {
+                // A negative value, which is often the default, can't be a valid index into a param's rows.
+                linkInfo = null;
+                if (value != -1)
+                {
+                    // These should really be set to -1.
+                    return LinkStatus.Invalid;
+                }
+                return LinkStatus.None;
+            }
+
+            var row = grids.RowsHost.DataSource.Rows[grids.Rows.SelectedRowIndex];
+            if (!extra.TryGetValidLink(row, out ParamLayoutExtra.Link link))
+            {
+                // We have no links under current conditions.
+                linkInfo = null;
+                return LinkStatus.None;
+            }
+
+            var targetParamIndex = grids.ParamsHost.DataSource.FindIndex(x => string.Equals(x.Name, link.Target));
+            if (targetParamIndex < 0)
+            {
+                // We can't find the param the link wants to jump to.
+                linkInfo = null;
+                return LinkStatus.Invalid;
+            }
+            var param = grids.ParamsHost.DataSource[targetParamIndex];
+
+            var targetRowIndex = param.Rows.FindIndex(x => (long)x.ID == value);
+            if (targetRowIndex < 0)
+            {
+                // We can't find the row matching the current value.
+                linkInfo = null;
+                return LinkStatus.Invalid;
+            }
+            var targetRow = param.Rows[targetRowIndex];
+
+            linkInfo = new LinkInfo
+            {
+                TargetParamIndex = targetParamIndex,
+                TargetParam = param,
+                TargetRowIndex = targetRowIndex,
+                TargetRow = targetRow,
+            };
+            return LinkStatus.Valid;
+        }
+
+        private enum LinkStatus
+        {
+            None,
+            Valid,
+            Invalid,
+        }
+
+        private class LinkInfo
+        {
+            public int TargetParamIndex { get; set; }
+            public ParamWrapper TargetParam { get; set; }
+
+            public int TargetRowIndex { get; set; }
+            public PARAM.Row TargetRow { get; set; }
         }
     }
 }

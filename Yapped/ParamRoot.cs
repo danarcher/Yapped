@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
 using SoulsFormats;
 using static Yapped.GameMode;
 
@@ -43,12 +44,13 @@ namespace Yapped
         bool ICollection<ParamWrapper>.IsReadOnly => true;
         void ICollection<ParamWrapper>.Add(ParamWrapper item) => throw new NotSupportedException();
         void ICollection<ParamWrapper>.Clear() => throw new NotSupportedException();
-        bool ICollection<ParamWrapper>.Contains(ParamWrapper item) => wrappers.Contains(item);
+        public bool Contains(ParamWrapper item) => wrappers.Contains(item);
         void ICollection<ParamWrapper>.CopyTo(ParamWrapper[] array, int arrayIndex) => throw new NotSupportedException();
         bool ICollection<ParamWrapper>.Remove(ParamWrapper item) => throw new NotSupportedException();
-        int IList<ParamWrapper>.IndexOf(ParamWrapper item) => wrappers.IndexOf(item);
+        public int IndexOf(ParamWrapper item) => wrappers.IndexOf(item);
         void IList<ParamWrapper>.Insert(int index, ParamWrapper item) => throw new NotSupportedException();
         void IList<ParamWrapper>.RemoveAt(int index) => throw new NotSupportedException();
+        public int FindIndex(Predicate<ParamWrapper> match) => wrappers.FindIndex(match);
         #endregion
 
         public string Path { get; private set; }
@@ -58,6 +60,7 @@ namespace Yapped
         public static ParamRoot Load(string path, GameMode gameMode, bool hideUnusedParams, string resDir)
         {
             var layouts = LoadLayouts($@"{resDir}\Layouts");
+            var extras = LoadLayoutExtras($@"{resDir}\LayoutExtra.json");
             var paramInfo = ParamInfo.ReadParamInfo($@"{resDir}\ParamInfo.xml");
 
             if (!File.Exists(path))
@@ -134,7 +137,9 @@ namespace Yapped
                     if (paramInfo.ContainsKey(name))
                         description = paramInfo[name].Description;
 
-                    var wrapper = new ParamWrapper(name, param, layout, description);
+                    extras.TryGetValue(name, out ParamLayoutExtra extra);
+
+                    var wrapper = new ParamWrapper(name, param, layout, extra, description);
                     instance.wrappers.Add(wrapper);
                 }
                 catch (Exception ex)
@@ -173,6 +178,19 @@ namespace Yapped
                 throw new Exception("Not all layouts were loaded.");
             }
             return layouts;
+        }
+
+        private static Dictionary<string, ParamLayoutExtra> LoadLayoutExtras(string path)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<Dictionary<string, ParamLayoutExtra>>(File.ReadAllText(path)) ?? new Dictionary<string, ParamLayoutExtra>();
+            }
+            catch (Exception ex)
+            {
+                Util.ShowError($"Layout extras were not loaded.\r\n\r\n{ex}");
+                return new Dictionary<string, ParamLayoutExtra>();
+            }
         }
 
         public void Save(GameMode gameMode)

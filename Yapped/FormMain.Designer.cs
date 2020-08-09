@@ -61,6 +61,9 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.fbdExport = new System.Windows.Forms.FolderBrowserDialog();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.backButton = new System.Windows.Forms.ToolStripButton();
+            this.forwardButton = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -68,6 +71,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ofdRegulation
@@ -305,13 +309,13 @@
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer2.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer2.Location = new System.Drawing.Point(0, 49);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
-            this.splitContainer2.Size = new System.Drawing.Size(887, 584);
+            this.splitContainer2.Size = new System.Drawing.Size(887, 559);
             this.splitContainer2.SplitterDistance = 249;
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 2;
@@ -322,8 +326,8 @@
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Size = new System.Drawing.Size(633, 584);
-            this.splitContainer1.SplitterDistance = 375;
+            this.splitContainer1.Size = new System.Drawing.Size(633, 559);
+            this.splitContainer1.SplitterDistance = 373;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 7;
             // 
@@ -350,14 +354,45 @@
             this.fbdExport.Description = "Choose the folder to export parambnds to";
             this.fbdExport.RootFolder = System.Environment.SpecialFolder.MyComputer;
             // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.backButton,
+            this.forwardButton});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(887, 25);
+            this.toolStrip1.TabIndex = 10;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // backButton
+            // 
+            this.backButton.Image = global::Yapped.Properties.Resources.arrow_left;
+            this.backButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.backButton.Name = "backButton";
+            this.backButton.Size = new System.Drawing.Size(52, 22);
+            this.backButton.Text = "Back";
+            this.backButton.Click += new System.EventHandler(this.BackButton_Click);
+            // 
+            // forwardButton
+            // 
+            this.forwardButton.Image = global::Yapped.Properties.Resources.arrow_right;
+            this.forwardButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.forwardButton.Name = "forwardButton";
+            this.forwardButton.Size = new System.Drawing.Size(70, 22);
+            this.forwardButton.Text = "Forward";
+            this.forwardButton.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.forwardButton.Click += new System.EventHandler(this.ForwardButton_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(887, 630);
             this.Controls.Add(this.splitContainer2);
-            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.menuStrip1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
@@ -372,6 +407,8 @@
             this.splitContainer1.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -409,6 +446,9 @@
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog fbdExport;
         private System.Windows.Forms.ToolStripComboBox toolStripComboBoxGame;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton backButton;
+        private System.Windows.Forms.ToolStripButton forwardButton;
     }
 }
 

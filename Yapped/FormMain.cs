@@ -22,36 +22,41 @@ namespace Yapped
         private ParamRoot root;
         private string lastFindRowPattern, lastFindFieldPattern;
 
-        private Grid paramsGrid, rowsGrid, cellsGrid;
-        private SelectionMemory memory;
+        private readonly GridSet grids = new GridSet();
+        private readonly History history = new History();
         private Font largeFont;
 
         private ToolStripMenuItem toolsMenu;
-        private ToolStripMenuItem toolsWeaponDamage;
-        private ToolStripMenuItem toolsFontSizeIncrease;
-        private ToolStripMenuItem toolsFontSizeDecrease;
 
         public FormMain()
         {
             InitializeComponent();
             lastFindRowPattern = "";
 
-            paramsGrid = new Grid();
-            splitContainer2.Panel1.Controls.Add(paramsGrid);
-            paramsGrid.Dock = DockStyle.Fill;
-            paramsGrid.BringToFront();
+            grids.Params = new Grid();
+            splitContainer2.Panel1.Controls.Add(grids.Params);
+            grids.Params.Dock = DockStyle.Fill;
+            grids.Params.BringToFront();
 
-            rowsGrid = new Grid();
-            splitContainer1.Panel1.Controls.Add(rowsGrid);
-            rowsGrid.Dock = DockStyle.Fill;
-            rowsGrid.BringToFront();
+            grids.Rows = new Grid();
+            splitContainer1.Panel1.Controls.Add(grids.Rows);
+            grids.Rows.Dock = DockStyle.Fill;
+            grids.Rows.BringToFront();
 
-            cellsGrid = new Grid();
-            splitContainer1.Panel2.Controls.Add(cellsGrid);
-            cellsGrid.Dock = DockStyle.Fill;
-            cellsGrid.BringToFront();
+            grids.Cells = new Grid();
+            splitContainer1.Panel2.Controls.Add(grids.Cells);
+            grids.Cells.Dock = DockStyle.Fill;
+            grids.Cells.BringToFront();
 
-            memory = new SelectionMemory();
+            grids.ParamsHost = new ParamsGridHost(history, grids);
+            grids.RowsHost = new RowsGridHost(history, grids);
+            grids.CellsHost = new CellsGridHost(history, grids);
+            grids.Params.Host = grids.ParamsHost;
+            grids.Rows.Host = grids.RowsHost;
+            grids.Cells.Host = grids.CellsHost;
+
+            history.CurrentChanged += OnHistoryCurrentChanged;
+            history.TimelineChanged += EnableDisable;
 
             var fileExit = new ToolStripMenuItem("E&xit");
             fileToolStripMenuItem.DropDownItems.Add("-");
@@ -60,16 +65,16 @@ namespace Yapped
 
             toolsMenu = new ToolStripMenuItem("&Tools");
             menuStrip1.Items.Add(toolsMenu);
-            toolsWeaponDamage = new ToolStripMenuItem("&Weapon Damage");
+            var toolsWeaponDamage = new ToolStripMenuItem("&Weapon Damage");
             toolsMenu.DropDownItems.Add(toolsWeaponDamage);
             toolsWeaponDamage.Click += (s, e) => FormWeaponDamage.ShowDialog(largeFont, root);
             toolsMenu.DropDownItems.Add("-");
             var toolsFontSize = (ToolStripMenuItem)toolsMenu.DropDownItems.Add("&Font Size");
-            toolsFontSizeDecrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Smaller");
+            var toolsFontSizeDecrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Smaller");
             toolsFontSizeDecrease.Click += (s, e) => AdjustFontSize(-1);
             toolsFontSizeDecrease.ShortcutKeys = Keys.Control | Keys.OemMinus;
             toolsFontSizeDecrease.ShortcutKeyDisplayString = "Ctrl+Minus";
-            toolsFontSizeIncrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Larger");
+            var toolsFontSizeIncrease = (ToolStripMenuItem)toolsFontSize.DropDownItems.Add("&Larger");
             toolsFontSizeIncrease.Click += (s, e) => AdjustFontSize(1);
             toolsFontSizeIncrease.ShortcutKeys = Keys.Control | Keys.Oemplus;
             toolsFontSizeIncrease.ShortcutKeyDisplayString = "Ctrl+Plus";
@@ -100,7 +105,7 @@ namespace Yapped
             splitContainer1.SplitterDistance = settings.SplitterDistance1;
             UpdateFontSize();
 
-            memory.Load(settings.DGVIndices);
+            history.Load(settings.DGVIndices);
             LoadParams(settings.RegulationPath);
 
             Util.CheckForUpdatesAsync().ContinueWith(x => updateToolStripMenuItem.Visible = x.Result);
@@ -126,10 +131,39 @@ namespace Yapped
                 settings.FontSize = (int)Font.Size;
             }
             largeFont = new Font(Font.FontFamily, settings.FontSize, Font.Style);
-            paramsGrid.Font = largeFont;
-            rowsGrid.Font = largeFont;
-            cellsGrid.Font = largeFont;
+            grids.Params.Font = largeFont;
+            grids.Rows.Font = largeFont;
+            grids.Cells.Font = largeFont;
             Invalidate(true);
+        }
+
+        private void BackButton_Click(object sender, EventArgs e) => history.GoBack();
+        private void ForwardButton_Click(object sender, EventArgs e) => history.GoForward();
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x210) // WM_PARENTNOTIFY
+            {
+                if ((((ulong)m.WParam) & 0xffff) == 0x20B) //  WM_XBUTTONDOWN
+                {
+                    var button = (((ulong)m.WParam) & 0xffff0000) >> 16;
+                    if (button == 0x0001) // XBUTTON1
+                    {
+                        history.GoBack();
+                    }
+                    else if (button == 0x0002) // XBUTTON2
+                    {
+                        history.GoForward();
+                    }
+                }
+            }
+            base.WndProc(ref m);
+        }
+
+        private void OnHistoryCurrentChanged()
+        {
+            EnableDisable();
+            grids.ParamsHost.Initialize(grids.Params);
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -152,7 +186,7 @@ namespace Yapped
             settings.VerifyRowDeletion = verifyDeletionsToolStripMenuItem.Checked;
             settings.SplitterDistance2 = splitContainer2.SplitterDistance;
             settings.SplitterDistance1 = splitContainer1.SplitterDistance;
-            settings.DGVIndices = memory.Save();
+            settings.DGVIndices = history.Save();
         }
 
         private void LoadParams(string path)
@@ -163,7 +197,7 @@ namespace Yapped
                     (GameMode)toolStripComboBoxGame.SelectedItem,
                     hideUnusedParamsToolStripMenuItem.Checked,
                     GetResRoot());
-                paramsGrid.Host = new ParamsGridHost(memory, rowsGrid, cellsGrid) { DataSource = root };
+                grids.ParamsHost.DataSource = root;
                 EnableDisable();
             }
             catch (Exception ex)
@@ -185,6 +219,8 @@ namespace Yapped
             editToolStripMenuItem.Enabled = loaded;
             toolsMenu.Enabled = loaded;
             toolStripStatusLabel1.Text = root?.Path ?? string.Empty;
+            backButton.Enabled = history.CanGoBack;
+            forwardButton.Enabled = history.CanGoForward;
         }
 
         #region File Menu
@@ -267,15 +303,13 @@ namespace Yapped
 
         private void DuplicateRowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (rowsGrid.SelectedRowIndex < 0)
+            if (grids.Rows.SelectedRowIndex < 0)
             {
                 Util.ShowError("You can't duplicate a row without one selected!");
                 return;
             }
 
-            int index = rowsGrid.SelectedRowIndex;
-            ParamWrapper wrapper = ((RowsGridHost)rowsGrid.Host).DataSource;
-            PARAM.Row oldRow = wrapper.Rows[index];
+            PARAM.Row oldRow = grids.RowsHost.DataSource.Rows[grids.Rows.SelectedRowIndex];
             PARAM.Row newRow;
             if ((newRow = CreateRow("Duplicate a row...")) != null)
             {
@@ -288,7 +322,7 @@ namespace Yapped
 
         private PARAM.Row CreateRow(string prompt)
         {
-            if (paramsGrid.SelectedRowIndex < 0)
+            if (grids.Params.SelectedRowIndex < 0)
             {
                 Util.ShowError("You can't create a row with no param selected!");
                 return null;
@@ -300,7 +334,7 @@ namespace Yapped
             {
                 long id = newRowForm.ResultID;
                 string name = newRowForm.ResultName;
-                ParamWrapper paramWrapper = ((RowsGridHost)rowsGrid.Host).DataSource;
+                ParamWrapper paramWrapper = grids.RowsHost.DataSource;
                 if (paramWrapper.Rows.Any(row => row.ID == id))
                 {
                     Util.ShowError($"A row with this ID already exists: {id}");
@@ -312,8 +346,8 @@ namespace Yapped
                     paramWrapper.Rows.Sort((r1, r2) => r1.ID.CompareTo(r2.ID));
 
                     int index = paramWrapper.Rows.FindIndex(row => ReferenceEquals(row, result));
-                    rowsGrid.SelectedRowIndex = index;
-                    rowsGrid.ScrollToSelection();
+                    grids.Params.SelectedRowIndex = index;
+                    grids.Params.ScrollToSelection();
                 }
             }
             return result;
@@ -321,7 +355,7 @@ namespace Yapped
 
         private void DeleteRowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (rowsGrid.SelectedRowIndex >= 0)
+            if (grids.Rows.SelectedRowIndex >= 0)
             {
                 DialogResult choice = DialogResult.Yes;
                 if (verifyDeletionsToolStripMenuItem.Checked)
@@ -330,14 +364,14 @@ namespace Yapped
 
                 if (choice == DialogResult.Yes)
                 {
-                    int rowIndex = rowsGrid.SelectedRowIndex;
-                    ((RowsGridHost)rowsGrid.Host).DataSource.Rows.RemoveAt(rowIndex);
+                    int rowIndex = grids.Rows.SelectedRowIndex;
+                    grids.RowsHost.DataSource.Rows.RemoveAt(rowIndex);
 
                     // If you remove a row it automatically selects the next one, but if you remove the last row
                     // it doesn't automatically select the previous one
-                    if (rowIndex == ((RowsGridHost)rowsGrid.Host).RowCount)
+                    if (rowIndex == grids.RowsHost.RowCount)
                     {
-                        --rowsGrid.SelectedRowIndex;
+                        --grids.Rows.SelectedRowIndex;
                     }
                 }
             }
@@ -378,7 +412,7 @@ namespace Yapped
                 }
             }
 
-            rowsGrid.Invalidate();
+            grids.Rows.Invalidate();
         }
 
         private void ExportNamesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -424,14 +458,14 @@ namespace Yapped
 
         private void FindRow(string pattern)
         {
-            if (paramsGrid.SelectedRowIndex < 0)
+            if (grids.Params.SelectedRowIndex < 0)
             {
                 Util.ShowError("You can't search for a row when there are no rows!");
                 return;
             }
 
-            int startIndex = rowsGrid.SelectedRowIndex >= 0 ? rowsGrid.SelectedRowIndex + 1 : 0;
-            List<PARAM.Row> rows = ((RowsGridHost)rowsGrid.Host).DataSource.Rows;
+            int startIndex = grids.Rows.SelectedRowIndex >= 0 ? grids.Rows.SelectedRowIndex + 1 : 0;
+            List<PARAM.Row> rows = grids.RowsHost.DataSource.Rows;
             int index = -1;
 
             for (int i = 0; i < rows.Count; i++)
@@ -445,8 +479,8 @@ namespace Yapped
 
             if (index != -1)
             {
-                rowsGrid.SelectedRowIndex = index;
-                rowsGrid.ScrollToSelection();
+                grids.Rows.SelectedRowIndex = index;
+                grids.Rows.ScrollToSelection();
                 lastFindRowPattern = pattern;
             }
             else
@@ -460,20 +494,20 @@ namespace Yapped
             var gotoForm = new FormGoto();
             if (gotoForm.ShowDialog() == DialogResult.OK)
             {
-                if (paramsGrid.SelectedRowIndex < 0)
+                if (grids.Params.SelectedRowIndex < 0)
                 {
                     Util.ShowError("You can't goto a row when there are no rows!");
                     return;
                 }
 
                 long id = gotoForm.ResultID;
-                List<PARAM.Row> rows = ((RowsGridHost)rowsGrid.Host).DataSource.Rows;
+                List<PARAM.Row> rows = grids.RowsHost.DataSource.Rows;
                 int index = rows.FindIndex(row => row.ID == id);
 
                 if (index != -1)
                 {
-                    rowsGrid.SelectedRowIndex = index;
-                    rowsGrid.ScrollToSelection();
+                    grids.Rows.SelectedRowIndex = index;
+                    grids.Rows.ScrollToSelection();
                 }
                 else
                 {
@@ -498,14 +532,14 @@ namespace Yapped
 
         private void FindField(string pattern)
         {
-            if (rowsGrid.SelectedRowIndex < 0)
+            if (grids.Rows.SelectedRowIndex < 0)
             {
                 Util.ShowError("You can't search for a field when there are no fields!");
                 return;
             }
 
-            int startIndex = cellsGrid.SelectedRowIndex >= 0 ? cellsGrid.SelectedRowIndex + 1 : 0;
-            var cells = ((CellsGridHost)cellsGrid.Host).DataSource;
+            int startIndex = grids.Cells.SelectedRowIndex >= 0 ? grids.Cells.SelectedRowIndex + 1 : 0;
+            var cells = grids.CellsHost.DataSource;
             int index = -1;
 
             for (int i = 0; i < cells.Length; i++)
@@ -519,8 +553,8 @@ namespace Yapped
 
             if (index != -1)
             {
-                cellsGrid.SelectedRowIndex = index;
-                cellsGrid.ScrollToSelection();
+                grids.Cells.SelectedRowIndex = index;
+                grids.Cells.ScrollToSelection();
                 lastFindFieldPattern = pattern;
             }
             else

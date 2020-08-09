@@ -21,6 +21,8 @@ namespace Yapped.Grids.Generic
         private CacheByColor<Brush> brushes = new CacheByColor<Brush>(color => new SolidBrush(color));
         private CacheByColor<Pen> pens = new CacheByColor<Pen>(color => new Pen(color));
         private Font boldFont;
+        private Font underlineFont;
+        private Font boldUnderlineFont;
         private StringFormat leftAlignedFormat;
 
         public Grid()
@@ -65,6 +67,8 @@ namespace Yapped.Grids.Generic
                 brushes.Dispose();
                 pens.Dispose();
                 boldFont?.Dispose();
+                underlineFont?.Dispose();
+                boldUnderlineFont?.Dispose();
                 toolTipTimer?.Dispose();
                 toolTipCancelTimer?.Dispose();
             }
@@ -117,6 +121,22 @@ namespace Yapped.Grids.Generic
                     RaiseSelectionChanged();
                 }
             }
+        }
+
+        public override Cursor Cursor
+        {
+            get
+            {
+                if (HitTest(PointToClient(Control.MousePosition), out int rowIndex, out int columnIndex))
+                {
+                    if (ModifierKeys.HasFlag(Keys.Control) && (host?.IsLinkClickable(rowIndex, columnIndex) ?? false))
+                    {
+                        return Cursors.Hand;
+                    }
+                }
+                return Cursors.Arrow;
+            }
+            set => base.Cursor = value;
         }
 
         public int SelectedColumnIndex
@@ -313,13 +333,21 @@ namespace Yapped.Grids.Generic
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            if (HitTest(e.Location, out int rowIndex, out int columnIndex))
+            if (e.Button == MouseButtons.Left && HitTest(e.Location, out int rowIndex, out int columnIndex))
             {
-                SelectedRowIndex = rowIndex;
-                SelectedColumnIndex = columnIndex;
-                ScrollToSelection(); // In case the user clicked a partially visible row.
+                if ((ModifierKeys.HasFlag(Keys.Control) || (host?.IsClickAlwaysLinkClick(rowIndex, columnIndex) ?? false)) && 
+                    (host?.IsLinkClickable(rowIndex, columnIndex) ?? false))
+                {
+                    host?.LinkClicked(rowIndex, columnIndex);
+                }
+                else
+                {
+                    SelectedRowIndex = rowIndex;
+                    SelectedColumnIndex = columnIndex;
+                    ScrollToSelection(); // In case the user clicked a partially visible row.
+                }
             }
-            else if (HitTestColumnHeader(e.Location, out int columnHeaderIndex) && host.IsColumnClickable(columnHeaderIndex))
+            else if (e.Button == MouseButtons.Left && HitTestColumnHeader(e.Location, out int columnHeaderIndex) && host.IsColumnClickable(columnHeaderIndex))
             {
                 host.ColumnClicked(columnHeaderIndex);
             }
@@ -328,12 +356,19 @@ namespace Yapped.Grids.Generic
 
         protected override void OnDoubleClick(EventArgs e)
         {
-            if (HitTest(PointToClient(MousePosition), out int rowIndex, out int columnIndex))
+            if (MouseButtons == MouseButtons.Left && HitTest(PointToClient(MousePosition), out int rowIndex, out int columnIndex))
             {
-                SelectedRowIndex = rowIndex;
-                SelectedColumnIndex = columnIndex;
-                ScrollToSelection();
-                TryEditCell();
+                if (ModifierKeys.HasFlag(Keys.Control) && (host?.IsLinkClickable(rowIndex, columnIndex) ?? false))
+                {
+                    host?.LinkClicked(rowIndex, columnIndex);
+                }
+                else
+                {
+                    SelectedRowIndex = rowIndex;
+                    SelectedColumnIndex = columnIndex;
+                    ScrollToSelection();
+                    TryEditCell();
+                }
             }
             base.OnDoubleClick(e);
         }
@@ -430,7 +465,21 @@ namespace Yapped.Grids.Generic
                     TryEditCell();
                     break;
             }
+            UpdateCursor();
             base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            UpdateCursor();
+            base.OnKeyUp(e);
+        }
+
+        private void UpdateCursor()
+        {
+            // Force a cursor update.
+            // The cursor (arrow) doesn't matter, since we override this property.
+            Cursor = Cursors.Arrow;
         }
 
         protected override void OnGotFocus(EventArgs e)
@@ -512,6 +561,7 @@ namespace Yapped.Grids.Generic
                             style.ForeBrush = null;
                             style.BorderPen = null;
                             style.Bold = false;
+                            style.Underline = false;
 
                             // Allow the host to restyle the row.
                             host.ModifyCellStyle(rowIndex, columnIndex, style);
@@ -532,14 +582,17 @@ namespace Yapped.Grids.Generic
 
                             // Update the bold font if necessary.
                             var font = defaultFont;
-                            if (style.Bold)
+                            if (style.Bold && style.Underline)
                             {
-                                if (boldFont == null || boldFont.FontFamily.Name != defaultFont.FontFamily.Name || boldFont.Size != defaultFont.Size)
-                                {
-                                    boldFont?.Dispose();
-                                    boldFont = new Font(defaultFont, FontStyle.Bold);
-                                }
-                                font = boldFont;
+                                font = UpdateFont(ref boldUnderlineFont, defaultFont, FontStyle.Bold | FontStyle.Underline);
+                            }
+                            else if (style.Bold)
+                            {
+                                font = UpdateFont(ref boldFont, defaultFont, FontStyle.Bold);
+                            }
+                            else if (style.Underline)
+                            {
+                                font = UpdateFont(ref underlineFont, defaultFont, FontStyle.Underline);
                             }
 
                             // Draw the cell.
@@ -568,6 +621,16 @@ namespace Yapped.Grids.Generic
                     }
                 }
             }
+        }
+
+        private Font UpdateFont(ref Font font, Font baseFont, FontStyle style)
+        {
+            if (font == null || font.FontFamily.Name != baseFont.FontFamily.Name || font.Size != baseFont.Size || font.Style != style)
+            {
+                font?.Dispose();
+                font = new Font(baseFont, style);
+            }
+            return font;
         }
 
         public void InvalidateDataSource()
@@ -625,14 +688,11 @@ namespace Yapped.Grids.Generic
                 TryGetFirstVisibleRowIndex(out int firstVisibleRowIndex) &&
                 TryGetLastVisibleRowIndex(GridRowVisibility.Full, out int lastVisibleRowIndex))
             {
-                if (selectedRowIndex < firstVisibleRowIndex)
+                if (selectedRowIndex < firstVisibleRowIndex ||
+                    selectedRowIndex > lastVisibleRowIndex)
                 {
-                    scrollBar.Value = selectedRowIndex;
-                    Invalidate();
-                }
-                else if (selectedRowIndex > lastVisibleRowIndex)
-                {
-                    scrollBar.Value = Math.Max(0, selectedRowIndex - GetVisibleRowCount(GridRowVisibility.Full));
+                    var visibleRowCount = GetVisibleRowCount(GridRowVisibility.Full);
+                    scrollBar.Value = Math.Max(0, Math.Min(scrollBar.Maximum - scrollBar.LargeChange + 1, selectedRowIndex - visibleRowCount / 2));
                     Invalidate();
                 }
             }

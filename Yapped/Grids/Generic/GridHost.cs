@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 
 namespace Yapped.Grids.Generic
 {
@@ -17,7 +18,7 @@ namespace Yapped.Grids.Generic
                 if (!object.Equals(dataSource, value))
                 {
                     dataSource = value;
-                    DataSourceChanged?.Invoke(this, EventArgs.Empty);
+                    OnDataSourceChanged();
                 }
             }
         }
@@ -33,7 +34,17 @@ namespace Yapped.Grids.Generic
         public abstract string GetColumnName(int columnIndex);
         public abstract int GetColumnWidth(Grid grid, int columnIndex);
 
-        public virtual void ModifyCellStyle(int rowIndex, int columnIndex, GridCellStyle style) { }
+        public virtual void ModifyCellStyle(int rowIndex, int columnIndex, GridCellStyle style)
+        {
+            if (IsLinkClickable(rowIndex, columnIndex))
+            {
+                if (!style.SelectedCell)
+                {
+                    style.ForeColor = Color.Blue;
+                }
+                style.Underline = true;
+            }
+        }
 
         public virtual void SelectionChanging(int selectedRowIndex, int selectedColumnIndex) { }
         public virtual void SelectionChanged(int selectedRowIndex, int selectedColumnIndex) { }
@@ -48,6 +59,15 @@ namespace Yapped.Grids.Generic
         public virtual bool IsColumnClickable(int columnIndex) => false;
         public virtual void ColumnClicked(int columnIndex) { }
 
+        public virtual bool IsLinkClickable(int rowIndex, int columnIndex) => false;
+        public virtual bool IsClickAlwaysLinkClick(int rowIndex, int columnIndex) => false;
+        public virtual void LinkClicked(int rowIndex, int columnIndex) { }
+
         public event EventHandler DataSourceChanged;
+
+        protected virtual void OnDataSourceChanged()
+        {
+            DataSourceChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

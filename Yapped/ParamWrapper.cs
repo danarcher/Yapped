@@ -16,9 +16,11 @@ namespace Yapped
 
         public PARAM.Layout Layout;
 
+        public ParamLayoutExtra Extra { get; }
+
         public List<PARAM.Row> Rows => Param.Rows;
 
-        public ParamWrapper(string name, PARAM param, PARAM.Layout layout, string description)
+        public ParamWrapper(string name, PARAM param, PARAM.Layout layout, ParamLayoutExtra extra, string description)
         {
             if (layout == null || layout.Size != param.DetectedSize)
             {
@@ -31,6 +33,7 @@ namespace Yapped
             Param = param;
             Layout = layout;
             Param.SetLayout(layout);
+            Extra = extra ?? new ParamLayoutExtra();
             Description = description;
         }
 

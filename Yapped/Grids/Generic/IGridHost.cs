@@ -31,6 +31,10 @@ namespace Yapped.Grids.Generic
         bool IsColumnClickable(int columnIndex);
         void ColumnClicked(int columnIndex);
 
+        bool IsLinkClickable(int rowIndex, int columnIndex);
+        bool IsClickAlwaysLinkClick(int rowIndex, int columnIndex);
+        void LinkClicked(int rowIndex, int columnIndex);
+
         event EventHandler DataSourceChanged;
     }
 }

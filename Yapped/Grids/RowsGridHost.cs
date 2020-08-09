@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SoulsFormats;
+﻿using System.Linq;
 using Yapped.Grids.Generic;
 using CellType = SoulsFormats.PARAM.CellType;
 
@@ -11,17 +9,27 @@ namespace Yapped.Grids
     /// </summary>
     internal class RowsGridHost : GridHost<ParamWrapper>
     {
-        private SelectionMemory memory;
-        private Grid cellsGrid;
+        private readonly History history;
+        private readonly GridSet grids;
 
-        public RowsGridHost(SelectionMemory memory, Grid cellsGrid)
+        public RowsGridHost(History history, GridSet grids)
         {
-            this.memory = memory;
-            this.cellsGrid = cellsGrid;
+            this.history = history;
+            this.grids = grids;
         }
 
+        public bool Initialized { get; set; }
         public override int ColumnCount => 2;
         public override int RowCount => DataSource?.Rows?.Count ?? 0;
+
+        public override void Initialize(Grid grid)
+        {
+            grid.SelectedRowIndex = history.Current[history.Current.Params.Selected].Rows.Selected;
+            grid.SelectedColumnIndex = 1;
+            grid.ScrollToSelection();
+            Initialized = true;
+            InitializeCellsGrid();
+        }
 
         public override string GetCellDisplayValue(int rowIndex, int columnIndex)
         {
@@ -64,42 +72,18 @@ namespace Yapped.Grids
 
         public override void SelectionChanged(int selectedRowIndex, int selectedColumnIndex)
         {
-            if (selectedRowIndex >= 0)
+            if (Initialized)
             {
-                // Remember the selected row.
-                memory.SelectedRow.StoreValue(selectedRowIndex);
-            }
-
-            using (memory.WithoutStoringValues())
-            {
-                // Set up the cells grid for this row.
-                cellsGrid.Host = new CellsGridHost(memory)
-                {
-                    DataSource = selectedRowIndex >= 0 ? DataSource.Rows[selectedRowIndex].Cells.Where(cell => cell.Type != CellType.dummy8).ToArray() : null
-                };
-
-                // Restore its visual state.
-                if (memory.SelectedCell.RecallValue(out int recall))
-                {
-                    cellsGrid.SelectedRowIndex = recall;
-                    cellsGrid.SelectedColumnIndex = 1;
-                    cellsGrid.ScrollToSelection();
-                }
-                else if (cellsGrid.RowCount > 0)
-                {
-                    cellsGrid.SelectedRowIndex = 0;
-                    cellsGrid.SelectedColumnIndex = 1;
-                }
-                if (memory.TopCell.RecallValue(out int recallTop))
-                {
-                    cellsGrid.ScrollTop = recallTop;
-                }
+                history.Current[history.Current.Params.Selected].Rows.Selected = selectedRowIndex;
+                InitializeCellsGrid();
             }
         }
 
-        public override void ScrollTopChanged(int scrollTop)
+        private void InitializeCellsGrid()
         {
-            memory.TopRow.StoreValue(scrollTop);
+            var selectedRowIndex = grids.Rows.SelectedRowIndex;
+            grids.CellsHost.Initialized = false;
+            grids.CellsHost.DataSource = selectedRowIndex >= 0 ? DataSource.Rows[selectedRowIndex].Cells.Where(cell => cell.Type != CellType.dummy8).ToArray() : null;
         }
 
         public override GridCellType GetCellEditType(int rowIndex, int columnIndex)

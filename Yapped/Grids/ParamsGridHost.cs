@@ -7,29 +7,33 @@ namespace Yapped.Grids
     /// <summary>
     /// The grid host for the leftmost "params" grid.
     /// </summary>
-    internal class ParamsGridHost : GridHost<IList<ParamWrapper>>
+    internal class ParamsGridHost : GridHost<ParamRoot>
     {
-        private bool initialized = false;
-        private readonly SelectionMemory memory;
-        private readonly Grid rowsGrid;
-        private readonly Grid cellsGrid;
+        private readonly History history;
+        private readonly GridSet grids;
 
-        public ParamsGridHost(SelectionMemory memory, Grid rowsGrid, Grid cellsGrid)
+        public ParamsGridHost(History history, GridSet grids)
         {
-            this.memory = memory;
-            this.rowsGrid = rowsGrid;
-            this.cellsGrid = cellsGrid;
+            this.history = history;
+            this.grids = grids;
         }
 
+        public bool Initialized { get; set; }
         public override int ColumnCount => 1;
         public override int RowCount => DataSource?.Count ?? 0;
 
         public override void Initialize(Grid grid)
         {
-            grid.ScrollTop = memory.TopParam;
-            grid.SelectedRowIndex = memory.SelectedParam;
+            Initialized = true;
+            grid.SelectedRowIndex = history.Current.Params.Selected;
             grid.SelectedColumnIndex = 0;
-            initialized = true;
+            grid.ScrollToSelection();
+        }
+
+        protected override void OnDataSourceChanged()
+        {
+            Initialized = false;
+            base.OnDataSourceChanged();
         }
 
         public override string GetCellDisplayValue(int rowIndex, int columnIndex) => DataSource[rowIndex].Name;
@@ -39,59 +43,36 @@ namespace Yapped.Grids
 
         public override void SelectionChanged(int selectedRowIndex, int selectedColumnIndex)
         {
-            if (selectedRowIndex >= 0)
+            if (Initialized)
             {
-                // Remember the selected param.
-                if (initialized)
-                {
-                    memory.SelectedParam = selectedRowIndex;
-                }
-                memory.StoreParamName(DataSource[selectedRowIndex].Name);
-            }
-
-            using (memory.WithoutStoringValues())
-            {
-                // Set up the rows grid for this param.
-                rowsGrid.Host = new RowsGridHost(memory, cellsGrid)
-                {
-                    DataSource = selectedRowIndex >= 0 ? DataSource[selectedRowIndex] : null
-                };
-
-                // Restore its visual state.
-                if (memory.SelectedRow.RecallValue(out int recall))
-                {
-                    rowsGrid.SelectedRowIndex = recall;
-                    rowsGrid.SelectedColumnIndex = 1;
-                    rowsGrid.ScrollToSelection();
-                }
-                else if (rowsGrid.RowCount > 0)
-                {
-                    rowsGrid.SelectedRowIndex = 0;
-                    rowsGrid.SelectedColumnIndex = 1;
-                }
-                if (memory.TopRow.RecallValue(out int recallTop))
-                {
-                    rowsGrid.ScrollTop = recallTop;
-                }
-            }
-        }
-
-        public override void ScrollTopChanged(int scrollTop)
-        {
-            if (initialized)
-            {
-                memory.TopParam = scrollTop;
+                history.Current.Params.Selected = selectedRowIndex;
+                grids.RowsHost.Initialized = false;
+                grids.RowsHost.DataSource = selectedRowIndex >= 0 ? DataSource[selectedRowIndex] : null;
             }
         }
 
         public override void ModifyCellStyle(int rowIndex, int columnIndex, GridCellStyle style)
         {
+            base.ModifyCellStyle(rowIndex, columnIndex, style);
+
             var param = DataSource[rowIndex];
             if (param.Error && !style.SelectedRow)
             {
                 style.BackColor = Color.Pink;
                 style.ForeColor = Color.Black;
             }
+        }
+
+        public override bool IsLinkClickable(int rowIndex, int columnIndex) => true;
+
+        public override bool IsClickAlwaysLinkClick(int rowIndex, int columnIndex) => true;
+
+        public override void LinkClicked(int rowIndex, int columnIndex)
+        {
+            history.Push(quiet: true);
+            grids.Params.SelectedRowIndex = rowIndex;
+            grids.Params.SelectedColumnIndex = columnIndex;
+            grids.Params.ScrollToSelection();
         }
     }
 }

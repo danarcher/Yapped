@@ -40,6 +40,9 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Octokit, Version=0.32.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
@@ -60,6 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CryptographyUtility.cs" />
+    <Compile Include="Grids\GridSet.cs" />
+    <Compile Include="Grids\History.cs" />
     <Compile Include="Grids\WeaponDamageCalculator.cs" />
     <Compile Include="FormFind.cs">
       <SubType>Form</SubType>
@@ -111,7 +116,7 @@
     <Compile Include="Grids\Generic\GridRowVisibility.cs" />
     <Compile Include="Grids\ParamsGridHost.cs" />
     <Compile Include="Grids\RowsGridHost.cs" />
-    <Compile Include="Grids\SelectionMemory.cs" />
+    <Compile Include="ParamLayoutExtra.cs" />
     <Compile Include="ParamRoot.cs" />
     <Compile Include="ParamInfo.cs" />
     <Compile Include="ParamWrapper.cs" />
@@ -141,6 +146,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -157,6 +163,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="arrow-left.png" />
+    <Content Include="arrow-right.png" />
     <Content Include="FodyWeavers.xml" />
     <Content Include="icon.ico" />
   </ItemGroup>

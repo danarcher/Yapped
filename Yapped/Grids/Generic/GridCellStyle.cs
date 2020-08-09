@@ -20,5 +20,6 @@ namespace Yapped.Grids.Generic
         public Brush ForeBrush;
 
         public bool Bold;
+        public bool Underline;
     }
 }
