@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Yapped.Grids.Generic
@@ -35,6 +36,9 @@ namespace Yapped.Grids.Generic
 
             toolTip = new ToolTip();
 
+            BackColor = SystemColors.Window;
+            ForeColor = SystemColors.WindowText;
+            BackdropColor = SystemColors.Control;
             BorderColor = SystemColors.ControlDark;
             FocusedSelectedRowBackColor = SystemColors.Control;
             FocusedSelectedRowForeColor = SystemColors.ControlText;
@@ -42,8 +46,8 @@ namespace Yapped.Grids.Generic
             FocusedSelectedCellForeColor = SystemColors.HighlightText;
             SelectedRowBackColor = FocusedSelectedRowBackColor;
             SelectedRowForeColor = FocusedSelectedRowForeColor;
-            SelectedCellBackColor = Color.FromArgb(141, 197, 239);
-            SelectedCellForeColor = Color.Black;
+            SelectedCellBackColor = FocusedSelectedCellBackColor;
+            SelectedCellForeColor = FocusedSelectedCellForeColor;
 
             leftAlignedFormat = new StringFormat(StringFormat.GenericDefault);
             leftAlignedFormat.Alignment = StringAlignment.Near;
@@ -154,6 +158,7 @@ namespace Yapped.Grids.Generic
 
         public int RowCount => host?.RowCount ?? 0;
 
+        public Color BackdropColor { get; set; }
         public Color BorderColor { get; set; }
         public Color FocusedSelectedRowBackColor { get; set; }
         public Color FocusedSelectedRowForeColor { get; set; }
@@ -164,7 +169,11 @@ namespace Yapped.Grids.Generic
         public Color SelectedCellBackColor { get; set; }
         public Color SelectedCellForeColor { get; set; }
 
-        private int RowHeight => Font.Height + 8;
+        public bool ShowFocusRect { get; set; } = true;
+
+        public new int FontHeight { get; private set; }
+
+        private int RowHeight => FontHeight + 8;
 
         private bool TryGetFirstVisibleRowIndex(out int rowIndex)
         {
@@ -252,6 +261,7 @@ namespace Yapped.Grids.Generic
                 x += host?.GetColumnWidth(this, i) ?? 0;
             }
             var width = host?.GetColumnWidth(this, columnIndex) ?? 0;
+            width = Math.Min(width, ClientSize.Width - x - scrollBar.Width);
             var height = rowRect.Height;
             rect = new Rectangle(x, y, width, height);
             return true;
@@ -265,6 +275,7 @@ namespace Yapped.Grids.Generic
 
         protected override void OnFontChanged(EventArgs e)
         {
+            FontHeight = Font.Height;
             UpdateScrollBar();
             base.OnFontChanged(e);
         }
@@ -439,7 +450,7 @@ namespace Yapped.Grids.Generic
             base.OnPaint(e);
 
             var graphics = e.Graphics;
-            e.Graphics.Clear(SystemColors.Window);
+            e.Graphics.Clear(BackdropColor);
             if (host == null)
             {
                 // We've nothing to draw.
@@ -484,9 +495,9 @@ namespace Yapped.Grids.Generic
                             style.SelectedRow = rowIndex == selectedRowIndex;
                             style.SelectedColumn = columnIndex == selectedColumnIndex;
                             style.SelectedCell = style.SelectedRow && style.SelectedColumn;
-                            style.BackColor = SystemColors.Window;
-                            style.ForeColor = SystemColors.WindowText;
-                            style.BorderColor = SystemColors.ControlDark;
+                            style.BackColor = BackColor;
+                            style.ForeColor = ForeColor;
+                            style.BorderColor = BorderColor;
                             if (style.SelectedCell)
                             {
                                 style.BackColor = Focused ? FocusedSelectedCellBackColor : SelectedCellBackColor;
@@ -494,8 +505,8 @@ namespace Yapped.Grids.Generic
                             }
                             else if (style.SelectedRow)
                             {
-                                style.BackColor = Focused ? FocusedSelectedRowBackColor : SelectedRowBackColor;
-                                style.ForeColor = Focused ? FocusedSelectedRowForeColor : SelectedRowForeColor;
+                                style.BackColor = SelectedRowBackColor;
+                                style.ForeColor = SelectedRowForeColor;
                             }
                             style.BackBrush = null;
                             style.ForeBrush = null;
@@ -534,8 +545,25 @@ namespace Yapped.Grids.Generic
                             // Draw the cell.
                             graphics.FillRectangle(style.BackBrush, rect);
                             graphics.DrawRectangle(style.BorderPen, rect);
-                            rect.X += 4; rect.Width -= 4;
-                            graphics.DrawString(text, font, style.ForeBrush, rect, leftAlignedFormat);
+                            var textRect = new Rectangle(rect.X + 4, rect.Y, rect.Width - 4, rect.Height);
+                            graphics.DrawString(text, font, style.ForeBrush, textRect, leftAlignedFormat);
+
+                            if (ShowFocusRect && Focused && style.SelectedCell)
+                            {
+                                rect.Inflate(-1, -1);
+                                var pen = pens.Get(BackColor);
+                                graphics.DrawRectangle(pen, rect);
+
+                                pen.Color = ForeColor;
+                                pen.DashStyle = DashStyle.Dot;
+                                graphics.DrawRectangle(pen, rect);
+
+                                pen.Color = BackColor;
+                                pen.DashStyle = DashStyle.Solid;
+
+                                rect.Inflate(-1, -1);
+                                graphics.DrawRectangle(pen, rect);
+                            }
                         }
                     }
                 }
