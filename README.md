@@ -1,7 +1,7 @@
 # Yapped
-An editor for Dark Souls 3 and Sekiro param files, which determine the properties of items, attacks, effects, enemies, objects, and a whole lot more. For detailed instructions, please refer to the included readme.  
-Requires [.NET 4.7.2](https://www.microsoft.com/net/download/thank-you/net472) - Windows 10 users should already have this.  
-[Nexus Page](https://www.nexusmods.com/darksouls3/mods/298)  
+An editor for Dark Souls 3 and Sekiro param files, which determine the properties of items, attacks, effects, enemies, objects, and a whole lot more. For detailed instructions, please refer to the included readme.
+Requires [.NET 4.7.2](https://www.microsoft.com/net/download/thank-you/net472) - Windows 10 users should already have this.
+[Nexus Page](https://www.nexusmods.com/darksouls3/mods/298)
 
 ## Note
 This is a fork of [Yapped by JKAnderson](https://github.com/JKAnderson/Yapped). Its features diverge.
@@ -9,14 +9,17 @@ This is a fork of [Yapped by JKAnderson](https://github.com/JKAnderson/Yapped). 
 This fork is not adequately supported or tested, but is for my own use. Back up your data and use at your own risk!
 
 # Warning
-As far as we know, in DS3 *any* edits to the regulation file (where params are stored) will trigger anticheat, including simply opening it and resaving it.  
-Only use modified params in offline mode. Back up your save file and restore it before going online again if you're doing anything that could affect it.  
+As far as we know, in DS3 *any* edits to the regulation file (where params are stored) will trigger anticheat, including simply opening it and resaving it.
+Only use modified params in offline mode. Back up your save file and restore it before going online again if you're doing anything that could affect it.
 
 # Changelog
 ### Forked
 * Grids replaced with a more responsive custom implementation but with cruder editing facilities
 * Values which differ from the (customary) default are highlighted
 * The new Tools menu has an option to calculate attack rating for all weapons for given stats
+* Grid font sizes are adjustable
+* Cells can hyperlink to other params, such as for SpEffectParam references, to help exploration and editing
+* Navigating around hyperlinks maintains history which can be moved back/forward through
 
 ### 1.1.2
 * Beta for Sekiro support
@@ -45,8 +48,8 @@ Only use modified params in offline mode. Back up your save file and restore it 
 * Backup actually works now. If you've already modified something, verify your game files through Steam. Sorry!
 
 # Credits
-**Pav** - Layouts  
-**TKGP** - Application  
+**Pav** - Layouts
+**TKGP** - Application
 **GiveMeThePowa, Xylozi** - Contributing row names
 
 # Libraries
