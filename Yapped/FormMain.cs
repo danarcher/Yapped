@@ -105,8 +105,8 @@ namespace Yapped
             splitContainer1.SplitterDistance = settings.SplitterDistance1;
             UpdateFontSize();
 
-            history.Load(settings.DGVIndices);
             LoadParams(settings.RegulationPath);
+            history.Load(settings.DGVIndices);
 
             Util.CheckForUpdatesAsync().ContinueWith(x => updateToolStripMenuItem.Visible = x.Result);
 
@@ -163,7 +163,7 @@ namespace Yapped
         private void OnHistoryCurrentChanged()
         {
             EnableDisable();
-            grids.ParamsHost.Initialize(grids.Params);
+            grids.ParamsHost.ResetDataSource(grids.ParamsHost.DataSource);
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -347,7 +347,7 @@ namespace Yapped
 
                     int index = paramWrapper.Rows.FindIndex(row => ReferenceEquals(row, result));
                     grids.Rows.SelectedRowIndex = index;
-                    grids.Rows.ScrollToSelection();
+                    grids.Rows.ScrollToSelection(GridScrollType.Center);
                 }
             }
             return result;
@@ -480,7 +480,7 @@ namespace Yapped
             if (index != -1)
             {
                 grids.Rows.SelectedRowIndex = index;
-                grids.Rows.ScrollToSelection();
+                grids.Rows.ScrollToSelection(GridScrollType.Center);
                 lastFindRowPattern = pattern;
             }
             else
@@ -507,7 +507,7 @@ namespace Yapped
                 if (index != -1)
                 {
                     grids.Rows.SelectedRowIndex = index;
-                    grids.Rows.ScrollToSelection();
+                    grids.Rows.ScrollToSelection(GridScrollType.Center);
                 }
                 else
                 {
@@ -554,7 +554,7 @@ namespace Yapped
             if (index != -1)
             {
                 grids.Cells.SelectedRowIndex = index;
-                grids.Cells.ScrollToSelection();
+                grids.Cells.ScrollToSelection(GridScrollType.Center);
                 lastFindFieldPattern = pattern;
             }
             else

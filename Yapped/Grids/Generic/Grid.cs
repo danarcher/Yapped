@@ -344,7 +344,7 @@ namespace Yapped.Grids.Generic
                 {
                     SelectedRowIndex = rowIndex;
                     SelectedColumnIndex = columnIndex;
-                    ScrollToSelection(); // In case the user clicked a partially visible row.
+                    ScrollToSelection(GridScrollType.Minimal); // In case the user clicked a partially visible row.
                 }
             }
             else if (e.Button == MouseButtons.Left && HitTestColumnHeader(e.Location, out int columnHeaderIndex) && host.IsColumnClickable(columnHeaderIndex))
@@ -366,7 +366,7 @@ namespace Yapped.Grids.Generic
                 {
                     SelectedRowIndex = rowIndex;
                     SelectedColumnIndex = columnIndex;
-                    ScrollToSelection();
+                    ScrollToSelection(GridScrollType.Minimal);
                     TryEditCell();
                 }
             }
@@ -394,28 +394,28 @@ namespace Yapped.Grids.Generic
                     if (selectedColumnIndex > 0)
                     {
                         --SelectedColumnIndex;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.Right:
                     if (host != null && selectedColumnIndex < host.ColumnCount - 1)
                     {
                         ++SelectedColumnIndex;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.Up:
                     if (selectedRowIndex > 0)
                     {
                         --SelectedRowIndex;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.Down:
                     if (host != null && selectedRowIndex < host.RowCount - 1)
                     {
                         ++SelectedRowIndex;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.PageUp:
@@ -428,7 +428,7 @@ namespace Yapped.Grids.Generic
                         else
                         {
                             SelectedRowIndex = Math.Max(0, selectedRowIndex - Math.Max(1, GetVisibleRowCount(GridRowVisibility.Any) - 1));
-                            ScrollToSelection();
+                            ScrollToSelection(GridScrollType.Minimal);
                         }
                     }
                     break;
@@ -442,7 +442,7 @@ namespace Yapped.Grids.Generic
                         else
                         {
                             SelectedRowIndex = Math.Min(host.RowCount - 1, selectedRowIndex + Math.Max(1, GetVisibleRowCount(GridRowVisibility.Any) - 1));
-                            ScrollToSelection();
+                            ScrollToSelection(GridScrollType.Minimal);
                         }
                     }
                     break;
@@ -450,14 +450,14 @@ namespace Yapped.Grids.Generic
                     if (e.Control && host != null && host.RowCount > 0)
                     {
                         SelectedRowIndex = 0;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.End:
                     if (e.Control && host != null && host.RowCount > 0)
                     {
                         SelectedRowIndex = host.RowCount - 1;
-                        ScrollToSelection();
+                        ScrollToSelection(GridScrollType.Minimal);
                     }
                     break;
                 case Keys.F2:
@@ -671,6 +671,8 @@ namespace Yapped.Grids.Generic
                 scrollBar.Maximum = 0;
             }
             scrollBar.Visible = scrollBar.Maximum >= scrollBar.LargeChange || scrollBar.Value > 0;
+            // Prevent invalid scroll positions after e.g. restoring a maximized window.
+            scrollBar.Value = Math.Max(0, Math.Min(scrollBar.Value, scrollBar.Maximum - scrollBar.LargeChange + 1));
         }
 
         private void ClearSelection()
@@ -682,18 +684,37 @@ namespace Yapped.Grids.Generic
             Invalidate();
         }
 
-        public void ScrollToSelection()
+        public void ScrollToSelection(GridScrollType type)
         {
             if (selectedRowIndex >= 0 &&
                 TryGetFirstVisibleRowIndex(out int firstVisibleRowIndex) &&
                 TryGetLastVisibleRowIndex(GridRowVisibility.Full, out int lastVisibleRowIndex))
             {
-                if (selectedRowIndex < firstVisibleRowIndex ||
-                    selectedRowIndex > lastVisibleRowIndex)
+                switch (type)
                 {
-                    var visibleRowCount = GetVisibleRowCount(GridRowVisibility.Full);
-                    scrollBar.Value = Math.Max(0, Math.Min(scrollBar.Maximum - scrollBar.LargeChange + 1, selectedRowIndex - visibleRowCount / 2));
-                    Invalidate();
+                    case GridScrollType.Minimal:
+                        if (selectedRowIndex < firstVisibleRowIndex)
+                        {
+                            scrollBar.Value = selectedRowIndex;
+                            Invalidate();
+                        }
+                        else if (selectedRowIndex > lastVisibleRowIndex)
+                        {
+                            scrollBar.Value = Math.Max(0, selectedRowIndex - GetVisibleRowCount(GridRowVisibility.Full));
+                            Invalidate();
+                        }
+                        break;
+                    case GridScrollType.Center:
+                        if (selectedRowIndex < firstVisibleRowIndex ||
+                            selectedRowIndex > lastVisibleRowIndex)
+                        {
+                            var visibleRowCount = GetVisibleRowCount(GridRowVisibility.Full);
+                            scrollBar.Value = Math.Max(0, Math.Min(scrollBar.Maximum - scrollBar.LargeChange + 1, selectedRowIndex - visibleRowCount / 2));
+                            Invalidate();
+                        }
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(type));
                 }
             }
         }

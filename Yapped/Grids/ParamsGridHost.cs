@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using Yapped.Grids.Generic;
 
@@ -18,22 +19,16 @@ namespace Yapped.Grids
             this.grids = grids;
         }
 
-        public bool Initialized { get; set; }
         public override int ColumnCount => 1;
         public override int RowCount => DataSource?.Count ?? 0;
 
         public override void Initialize(Grid grid)
         {
-            Initialized = true;
             grid.SelectedRowIndex = history.Current.Params.Selected;
             grid.SelectedColumnIndex = 0;
-            grid.ScrollToSelection();
-        }
-
-        protected override void OnDataSourceChanged()
-        {
-            Initialized = false;
-            base.OnDataSourceChanged();
+            grid.ScrollToSelection(GridScrollType.Center);
+            base.Initialize(grid);
+            InitializeRowsGrid();
         }
 
         public override string GetCellDisplayValue(int rowIndex, int columnIndex) => DataSource[rowIndex].Name;
@@ -46,9 +41,16 @@ namespace Yapped.Grids
             if (Initialized)
             {
                 history.Current.Params.Selected = selectedRowIndex;
-                grids.RowsHost.Initialized = false;
-                grids.RowsHost.DataSource = selectedRowIndex >= 0 ? DataSource[selectedRowIndex] : null;
+                InitializeRowsGrid();
             }
+        }
+
+        private void InitializeRowsGrid()
+        {
+            var selectedRowIndex = grids.Params.SelectedRowIndex;
+            grids.RowsHost.ResetDataSource(selectedRowIndex >= 0 ? DataSource[selectedRowIndex] : null);
+            // Since the user has changed the param they're viewing, scroll the selected cell into view.
+            grids.Cells.ScrollToSelection(GridScrollType.Center);
         }
 
         public override void ModifyCellStyle(int rowIndex, int columnIndex, GridCellStyle style)
@@ -69,10 +71,15 @@ namespace Yapped.Grids
 
         public override void LinkClicked(int rowIndex, int columnIndex)
         {
+            if (rowIndex == grids.Params.SelectedRowIndex)
+            {
+                // Since mouse clicks count as link clicks, don't push duplicates to history.
+                return;
+            }
             history.Push(quiet: true);
             grids.Params.SelectedRowIndex = rowIndex;
             grids.Params.SelectedColumnIndex = columnIndex;
-            grids.Params.ScrollToSelection();
+            grids.Params.ScrollToSelection(GridScrollType.Minimal);
         }
     }
 }

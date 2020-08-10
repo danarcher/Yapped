@@ -23,10 +23,25 @@ namespace Yapped.Grids.Generic
             }
         }
 
+        /// <summary>
+        /// Set the data source. Always raises a changed event, regardless of the current value.
+        /// </summary>
+        public virtual void ResetDataSource(T value = default(T))
+        {
+            Initialized = false;
+            dataSource = value;
+            OnDataSourceChanged();
+        }
+
+        public bool Initialized { get; protected set; }
+
         public abstract int ColumnCount { get; }
         public abstract int RowCount { get; }
 
-        public virtual void Initialize(Grid grid) { }
+        public virtual void Initialize(Grid grid)
+        {
+            Initialized = true;
+        }
 
         public abstract string GetCellDisplayValue(int rowIndex, int columnIndex);
         public virtual string GetCellToolTip(int rowIndex, int columnIndex) => string.Empty;

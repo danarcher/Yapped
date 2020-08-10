@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CryptographyUtility.cs" />
+    <Compile Include="Grids\Generic\GridScrollType.cs" />
     <Compile Include="Grids\GridSet.cs" />
     <Compile Include="Grids\History.cs" />
     <Compile Include="Grids\WeaponDamageCalculator.cs" />

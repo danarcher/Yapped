@@ -18,7 +18,6 @@ namespace Yapped.Grids
             this.grids = grids;
         }
 
-        public bool Initialized { get; set; }
         public override int ColumnCount => 2;
         public override int RowCount => DataSource?.Rows?.Count ?? 0;
 
@@ -26,8 +25,8 @@ namespace Yapped.Grids
         {
             grid.SelectedRowIndex = history.Current[history.Current.Params.Selected].Rows.Selected;
             grid.SelectedColumnIndex = 1;
-            grid.ScrollToSelection();
-            Initialized = true;
+            grid.ScrollToSelection(GridScrollType.Center);
+            base.Initialize(grid);
             InitializeCellsGrid();
         }
 
@@ -82,8 +81,14 @@ namespace Yapped.Grids
         private void InitializeCellsGrid()
         {
             var selectedRowIndex = grids.Rows.SelectedRowIndex;
-            grids.CellsHost.Initialized = false;
-            grids.CellsHost.DataSource = selectedRowIndex >= 0 ? DataSource.Rows[selectedRowIndex].Cells.Where(cell => cell.Type != CellType.dummy8).ToArray() : null;
+            var scrollTop = grids.Cells.ScrollTop; // Save the scroll position.
+            grids.CellsHost.ResetDataSource(selectedRowIndex >= 0 ? DataSource.Rows[selectedRowIndex].Cells.Where(cell => cell.Type != CellType.dummy8).ToArray() : null);
+            // Restore the scroll position if possible, in case the user is
+            // browsing rows within a param and their gaze is on a particular
+            // cell. If the user selected a different param, the previous
+            // ScrollTop is not helpful, but ParamsGridHost will shortly
+            // scroll us to our selected value (from history) instead.
+            grids.Cells.ScrollTop = scrollTop;
         }
 
         public override GridCellType GetCellEditType(int rowIndex, int columnIndex)

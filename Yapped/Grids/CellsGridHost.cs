@@ -20,7 +20,6 @@ namespace Yapped.Grids
             this.grids = grids;
         }
 
-        public bool Initialized { get; set; }
         public override int ColumnCount => 3;
         public override int RowCount => DataSource?.Length ?? 0;
 
@@ -28,9 +27,12 @@ namespace Yapped.Grids
         {
             grid.SelectedRowIndex = history.Current[history.Current.Params.Selected].Cells.Selected;
             grid.SelectedColumnIndex = 1;
-            grid.ScrollToSelection();
+            // Do not scroll the cells grid (to the selection) here, since the
+            // user may be navigating between rows in the same param and we
+            // don't want them to lose their place. Instead, ParamsGridHost will
+            // scroll us to our selection when the selected param changes.
             extras = grids.Params.SelectedRowIndex >= 0 ? grids.ParamsHost.DataSource[grids.Params.SelectedRowIndex].Extra : null;
-            Initialized = true;
+            base.Initialize(grid);
         }
 
         public override string GetCellDisplayValue(int rowIndex, int columnIndex)
@@ -231,9 +233,9 @@ namespace Yapped.Grids
 
             history.Push();
             grids.Params.SelectedRowIndex = linkInfo.TargetParamIndex;
-            grids.Params.ScrollToSelection();
+            grids.Params.ScrollToSelection(GridScrollType.Center);
             grids.Rows.SelectedRowIndex = linkInfo.TargetRowIndex;
-            grids.Rows.ScrollToSelection();
+            grids.Rows.ScrollToSelection(GridScrollType.Center);
         }
 
         private ParamLayoutExtra.Entry GetExtra(int rowIndex)

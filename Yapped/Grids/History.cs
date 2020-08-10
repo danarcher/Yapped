@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Yapped.Grids
 {
     internal class History
     {
+        // History is not infinite, since it grows with mouse clicks.
+        private static readonly int MaximumHistoryDepth = 16;
+
         private List<Entry> entries;
         private int index;
 
@@ -57,7 +61,19 @@ namespace Yapped.Grids
         {
             DiscardForward();
             entries.Add(Current.Clone());
+            Clean();
             GoForward(quiet);
+        }
+
+        public void Clean()
+        {
+            entries.ForEach(x => x.Clean());
+            while (entries.Count > MaximumHistoryDepth && index > 0)
+            {
+                entries.RemoveAt(0);
+                --index;
+            }
+            TimelineChanged?.Invoke();
         }
 
         public string Save()
@@ -77,6 +93,8 @@ namespace Yapped.Grids
                 var serialize = JsonConvert.DeserializeObject<Serialize>(value);
                 entries = serialize.Entries;
                 index = serialize.Index;
+                CurrentChanged?.Invoke();
+                TimelineChanged?.Invoke();
             }
             catch (Exception)
             {
@@ -126,12 +144,24 @@ namespace Yapped.Grids
                 }
                 return clone;
             }
+
+            public void Clean()
+            {
+                var emptyEntries = Map.Where(x => x.Value.IsEmpty).ToArray();
+                foreach (var pair in emptyEntries)
+                {
+                    Map.Remove(pair.Key);
+                }
+            }
         }
 
         public class ParamEntry
         {
             public Position Rows { get; set; } = new Position();
             public Position Cells { get; set; } = new Position();
+
+            [JsonIgnore]
+            public bool IsEmpty => Rows.IsEmpty && Cells.IsEmpty;
 
             public ParamEntry Clone()
             {
@@ -145,14 +175,15 @@ namespace Yapped.Grids
 
         public class Position
         {
-            //public int Top { get; set; }
             public int Selected { get; set; }
+
+            [JsonIgnore]
+            public bool IsEmpty => Selected <= 0;
 
             public Position Clone()
             {
                 return new Position
                 {
-                    //Top = Top,
                     Selected = Selected,
                 };
             }
