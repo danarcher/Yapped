@@ -245,7 +245,7 @@ namespace Yapped
             if (File.Exists(backupPath))
             {
                 DialogResult choice = MessageBox.Show("Are you sure you want to restore the backup?",
-                    "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.None);
                 if (choice == DialogResult.Yes)
                 {
                     try
@@ -298,7 +298,7 @@ namespace Yapped
         #region Edit Menu
         private void AddRowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateRow("Add a new row...");
+            CreateRow("Add New Row");
         }
 
         private void DuplicateRowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -311,7 +311,7 @@ namespace Yapped
 
             PARAM.Row oldRow = grids.RowsHost.DataSource.Rows[grids.Rows.SelectedRowIndex];
             PARAM.Row newRow;
-            if ((newRow = CreateRow("Duplicate a row...")) != null)
+            if ((newRow = CreateRow($"Duplicate Row {oldRow.ID}", oldRow.ID, oldRow.Name)) != null)
             {
                 for (int i = 0; i < oldRow.Cells.Count; i++)
                 {
@@ -320,7 +320,7 @@ namespace Yapped
             }
         }
 
-        private PARAM.Row CreateRow(string prompt)
+        private PARAM.Row CreateRow(string prompt, long id = 0, string name = null)
         {
             if (grids.Params.SelectedRowIndex < 0)
             {
@@ -328,29 +328,41 @@ namespace Yapped
                 return null;
             }
 
-            PARAM.Row result = null;
-            var newRowForm = new FormNewRow(prompt);
-            if (newRowForm.ShowDialog() == DialogResult.OK)
+            while (true)
             {
-                long id = newRowForm.ResultID;
-                string name = newRowForm.ResultName;
-                ParamWrapper paramWrapper = grids.RowsHost.DataSource;
-                if (paramWrapper.Rows.Any(row => row.ID == id))
+                using (var dialog = new FormNewRow())
                 {
-                    Util.ShowError($"A row with this ID already exists: {id}");
-                }
-                else
-                {
-                    result = new PARAM.Row(id, name, paramWrapper.Layout);
-                    paramWrapper.Rows.Add(result);
-                    paramWrapper.Rows.Sort((r1, r2) => r1.ID.CompareTo(r2.ID));
+                    dialog.Prompt = prompt;
+                    dialog.ResultID = id;
+                    dialog.ResultName = name;
+                    switch (dialog.ShowDialog())
+                    {
+                        case DialogResult.Cancel:
+                            return null;
+                        default:
+                            id = dialog.ResultID;
+                            name = dialog.ResultName;
+                            ParamWrapper paramWrapper = grids.RowsHost.DataSource;
+                            if (paramWrapper.Rows.Any(row => row.ID == id))
+                            {
+                                Util.ShowError($"A row with this ID already exists: {id}");
+                                // Fall through, allowing the user to edit the value.
+                            }
+                            else
+                            {
+                                var result = new PARAM.Row(id, name, paramWrapper.Layout);
+                                paramWrapper.Rows.Add(result);
+                                paramWrapper.Rows.Sort((r1, r2) => r1.ID.CompareTo(r2.ID));
 
-                    int index = paramWrapper.Rows.FindIndex(row => ReferenceEquals(row, result));
-                    grids.Rows.SelectedRowIndex = index;
-                    grids.Rows.ScrollToSelection(GridScrollType.Center);
+                                int index = paramWrapper.Rows.FindIndex(row => ReferenceEquals(row, result));
+                                grids.Rows.SelectedRowIndex = index;
+                                grids.Rows.ScrollToSelection(GridScrollType.Center);
+                                return result;
+                            }
+                            break;
+                    }
                 }
             }
-            return result;
         }
 
         private void DeleteRowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -360,7 +372,7 @@ namespace Yapped
                 DialogResult choice = DialogResult.Yes;
                 if (verifyDeletionsToolStripMenuItem.Checked)
                     choice = MessageBox.Show("Are you sure you want to delete this row?",
-                        "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.None);
 
                 if (choice == DialogResult.Yes)
                 {
@@ -373,6 +385,7 @@ namespace Yapped
                     {
                         --grids.Rows.SelectedRowIndex;
                     }
+                    grids.Rows.Invalidate();
                 }
             }
         }
@@ -381,7 +394,7 @@ namespace Yapped
         {
             bool replace = MessageBox.Show("If a row already has a name, would you like to skip it?\r\n" +
                 "Click Yes to skip existing names.\r\nClick No to replace existing names.",
-                "Importing Names", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+                "Importing Names", MessageBoxButtons.YesNo) == DialogResult.Yes;
 
             string namesDir = $@"{GetResRoot()}\Names";
             foreach (ParamWrapper paramFile in root)

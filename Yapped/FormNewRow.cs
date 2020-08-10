@@ -1,37 +1,38 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace Yapped
 {
     public partial class FormNewRow : Form
     {
-        public long ResultID;
+        public string Prompt { get; set; }
+        public long ResultID { get; set; }
+        public string ResultName { get; set; }
 
-        public string ResultName;
-
-        public FormNewRow(string prompt)
+        public FormNewRow()
         {
             InitializeComponent();
-            Text = prompt;
-            DialogResult = DialogResult.Cancel;
         }
 
-        private void btnCreate_Click(object sender, EventArgs e)
+        protected override void OnLoad(EventArgs e)
         {
-            ResultID = (long)nudID.Value;
-            ResultName = txtName.Text.Length > 0 ? txtName.Text : null;
-            DialogResult = DialogResult.OK;
-            Close();
+            Text = Prompt;
+            idUpDown.Value = ResultID;
+            nameTextBox.Text = ResultName;
+            base.OnLoad(e);
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
-            Close();
+            ResultID = (long)idUpDown.Value;
+            ResultName = nameTextBox.Text.Length > 0 ? nameTextBox.Text : null;
+            base.OnClosing(e);
         }
 
         private void nudID_Enter(object sender, EventArgs e)
         {
-            nudID.Select(0, nudID.Text.Length);
+            idUpDown.Select(0, idUpDown.Text.Length);
         }
     }
 }

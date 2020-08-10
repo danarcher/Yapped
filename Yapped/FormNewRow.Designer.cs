@@ -30,93 +30,92 @@
         {
             System.Windows.Forms.Label lblID;
             System.Windows.Forms.Label lblName;
-            this.nudID = new System.Windows.Forms.NumericUpDown();
-            this.btnCreate = new System.Windows.Forms.Button();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.txtName = new System.Windows.Forms.TextBox();
+            this.idUpDown = new System.Windows.Forms.NumericUpDown();
+            this.createButton = new System.Windows.Forms.Button();
+            this.cancelButton = new System.Windows.Forms.Button();
+            this.nameTextBox = new System.Windows.Forms.TextBox();
             lblID = new System.Windows.Forms.Label();
             lblName = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.nudID)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.idUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // lblID
             // 
             lblID.AutoSize = true;
-            lblID.Location = new System.Drawing.Point(12, 9);
+            lblID.Location = new System.Drawing.Point(14, 10);
             lblID.Name = "lblID";
-            lblID.Size = new System.Drawing.Size(18, 13);
+            lblID.Size = new System.Drawing.Size(18, 15);
             lblID.TabIndex = 4;
             lblID.Text = "ID";
             // 
             // lblName
             // 
             lblName.AutoSize = true;
-            lblName.Location = new System.Drawing.Point(12, 52);
+            lblName.Location = new System.Drawing.Point(14, 60);
             lblName.Name = "lblName";
-            lblName.Size = new System.Drawing.Size(81, 13);
+            lblName.Size = new System.Drawing.Size(94, 15);
             lblName.TabIndex = 5;
             lblName.Text = "Name (optional)";
             // 
-            // nudID
+            // idUpDown
             // 
-            this.nudID.Location = new System.Drawing.Point(12, 25);
-            this.nudID.Maximum = new decimal(new int[] {
+            this.idUpDown.Location = new System.Drawing.Point(14, 29);
+            this.idUpDown.Maximum = new decimal(new int[] {
             1215752192,
             23,
             0,
             0});
-            this.nudID.Name = "nudID";
-            this.nudID.Size = new System.Drawing.Size(156, 20);
-            this.nudID.TabIndex = 0;
-            this.nudID.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.nudID.Enter += new System.EventHandler(this.nudID_Enter);
+            this.idUpDown.Name = "idUpDown";
+            this.idUpDown.Size = new System.Drawing.Size(182, 23);
+            this.idUpDown.TabIndex = 0;
+            this.idUpDown.Enter += new System.EventHandler(this.nudID_Enter);
             // 
-            // btnCreate
+            // createButton
             // 
-            this.btnCreate.Location = new System.Drawing.Point(12, 94);
-            this.btnCreate.Name = "btnCreate";
-            this.btnCreate.Size = new System.Drawing.Size(75, 23);
-            this.btnCreate.TabIndex = 2;
-            this.btnCreate.Text = "Create";
-            this.btnCreate.UseVisualStyleBackColor = true;
-            this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
+            this.createButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.createButton.Location = new System.Drawing.Point(14, 108);
+            this.createButton.Name = "createButton";
+            this.createButton.Size = new System.Drawing.Size(87, 27);
+            this.createButton.TabIndex = 2;
+            this.createButton.Text = "Create";
+            this.createButton.UseVisualStyleBackColor = true;
             // 
-            // btnCancel
+            // cancelButton
             // 
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(93, 94);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 3;
-            this.btnCancel.Text = "Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cancelButton.Location = new System.Drawing.Point(108, 108);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(87, 27);
+            this.cancelButton.TabIndex = 3;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.UseVisualStyleBackColor = true;
             // 
-            // txtName
+            // nameTextBox
             // 
-            this.txtName.Location = new System.Drawing.Point(12, 68);
-            this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(156, 20);
-            this.txtName.TabIndex = 1;
+            this.nameTextBox.Location = new System.Drawing.Point(14, 78);
+            this.nameTextBox.Name = "nameTextBox";
+            this.nameTextBox.Size = new System.Drawing.Size(181, 23);
+            this.nameTextBox.TabIndex = 1;
             // 
             // FormNewRow
             // 
-            this.AcceptButton = this.btnCreate;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AcceptButton = this.createButton;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(180, 129);
+            this.CancelButton = this.cancelButton;
+            this.ClientSize = new System.Drawing.Size(210, 149);
             this.Controls.Add(lblName);
             this.Controls.Add(lblID);
-            this.Controls.Add(this.txtName);
-            this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.btnCreate);
-            this.Controls.Add(this.nudID);
+            this.Controls.Add(this.nameTextBox);
+            this.Controls.Add(this.cancelButton);
+            this.Controls.Add(this.createButton);
+            this.Controls.Add(this.idUpDown);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "FormNewRow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FormNewRow";
-            ((System.ComponentModel.ISupportInitialize)(this.nudID)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.idUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -124,9 +123,9 @@
 
         #endregion
 
-        private System.Windows.Forms.NumericUpDown nudID;
-        private System.Windows.Forms.Button btnCreate;
-        private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.NumericUpDown idUpDown;
+        private System.Windows.Forms.Button createButton;
+        private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.TextBox nameTextBox;
     }
 }
