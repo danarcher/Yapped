@@ -346,8 +346,8 @@ namespace Yapped
                     paramWrapper.Rows.Sort((r1, r2) => r1.ID.CompareTo(r2.ID));
 
                     int index = paramWrapper.Rows.FindIndex(row => ReferenceEquals(row, result));
-                    grids.Params.SelectedRowIndex = index;
-                    grids.Params.ScrollToSelection();
+                    grids.Rows.SelectedRowIndex = index;
+                    grids.Rows.ScrollToSelection();
                 }
             }
             return result;
