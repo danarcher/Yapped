@@ -356,7 +356,7 @@ namespace Yapped.Grids.Generic
 
         protected override void OnDoubleClick(EventArgs e)
         {
-            if (MouseButtons == MouseButtons.Left && HitTest(PointToClient(MousePosition), out int rowIndex, out int columnIndex))
+            if (((MouseEventArgs)e).Button == MouseButtons.Left && HitTest(PointToClient(MousePosition), out int rowIndex, out int columnIndex))
             {
                 if (ModifierKeys.HasFlag(Keys.Control) && (host?.IsLinkClickable(rowIndex, columnIndex) ?? false))
                 {
