@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
 using SoulsFormats;
 using Yapped.Grids.Generic;
 
@@ -149,6 +151,57 @@ namespace Yapped.Grids
             {
                 history.Current[history.Current.Params.Selected].Cells.Selected = selectedRowIndex;
             }
+            UpdateDetails();
+        }
+
+        private void UpdateDetails()
+        {
+            var selectedRowIndex = grids.Cells.SelectedRowIndex;
+            grids.Details.Text = string.Empty;
+            if (selectedRowIndex >= 0)
+            {
+                var cell = grids.CellsHost.DataSource[selectedRowIndex];
+                var builder = new StringBuilder();
+                builder.Append(@"{\rtf1\ansi ");
+                builder.Append(@"\b ");
+                builder.Append(cell.Name);
+                builder.Append(@"\line ");
+                builder.Append(@"\b0 ");
+                builder.Append(@"\line ");
+                builder.Append(GetCellToolTip(selectedRowIndex, 1));
+                builder.Append(@"\line ");
+                builder.Append(@"}");
+                grids.Details.Rtf = builder.ToString();
+            }
+            if (grids.Params.SelectedRowIndex >= 0 &&
+                grids.ParamsHost.DataSource[grids.Params.SelectedRowIndex].Name == "CalcCorrectGraph" &&
+                grids.Rows.SelectedRowIndex >= 0)
+            {
+                grids.Graph.BringToFront();
+                grids.Graph.Data = new GraphData
+                {
+                    XMinimum = 1,
+                    XMaximum = 99,
+                    YMinimum = 0,
+                    YMaximum = 1,
+                    Series1Color = Color.Blue,
+                };
+                var param = grids.ParamsHost.DataSource[grids.Params.SelectedRowIndex];
+                var row = grids.RowsHost.DataSource.Rows[grids.Rows.SelectedRowIndex];
+                var ccg = new CalcCorrectGraph(param, (int)row.ID);
+                var points = new List<PointF>();
+                for (var x = 0; x < 100; ++x)
+                {
+                    var y = ccg.Apply(x);
+                    points.Add(new PointF(x, y));
+                }
+                grids.Graph.Data.Series1 = points.ToArray();
+                grids.Graph.Invalidate();
+            }
+            else
+            {
+                grids.Graph.SendToBack();
+            }
         }
 
         public override GridCellType GetCellEditType(int rowIndex, int columnIndex)
@@ -213,6 +266,7 @@ namespace Yapped.Grids
             {
                 case 2:
                     DataSource[rowIndex].Value = value;
+                    UpdateDetails(); // Redraw any applicable graph.
                     break;
                 default:
                     break;

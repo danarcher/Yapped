@@ -44,9 +44,23 @@ namespace Yapped
             grids.Rows.BringToFront();
 
             grids.Cells = new Grid();
-            splitContainer1.Panel2.Controls.Add(grids.Cells);
+            splitContainer3.Panel1.Controls.Add(grids.Cells);
             grids.Cells.Dock = DockStyle.Fill;
             grids.Cells.BringToFront();
+
+            grids.Details = new RichTextBox();
+            grids.Details.ReadOnly = true;
+            grids.Details.Dock = DockStyle.Fill;
+            grids.Details.BackColor = SystemColors.Window;
+            grids.Details.ForeColor = SystemColors.WindowText;
+            splitContainer3.Panel2.Controls.Add(grids.Details);
+
+            grids.Graph = new GraphControl();
+            grids.Graph.Dock = DockStyle.Fill;
+            grids.Graph.BackColor = SystemColors.Window;
+            grids.Graph.ForeColor = SystemColors.WindowText;
+            splitContainer3.Panel2.Controls.Add(grids.Graph);
+            grids.Graph.SendToBack();
 
             grids.ParamsHost = new ParamsGridHost(history, grids);
             grids.RowsHost = new RowsGridHost(history, grids);
@@ -134,6 +148,7 @@ namespace Yapped
             grids.Params.Font = largeFont;
             grids.Rows.Font = largeFont;
             grids.Cells.Font = largeFont;
+            grids.Details.Font = largeFont;
             Invalidate(true);
         }
 

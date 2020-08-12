@@ -167,70 +167,81 @@ namespace Yapped
     // c/o https://github.com/tzbob/ds3-ar/blob/master/shared/src/main/scala/ds3ar/ir/CalcCorrectGraph.scala
     internal class CalcCorrectGraph
     {
-        private float stageMaxVal0;
-        private float stageMaxVal1;
-        private float stageMaxVal2;
-        private float stageMaxVal3;
-        private float stageMaxVal4;
+        private float stat0;
+        private float stat1;
+        private float stat2;
+        private float stat3;
+        private float stat4;
 
-        private float stageMaxGrowVal0;
-        private float stageMaxGrowVal1;
-        private float stageMaxGrowVal2;
-        private float stageMaxGrowVal3;
-        private float stageMaxGrowVal4;
+        private float result0;
+        private float result1;
+        private float result2;
+        private float result3;
+        private float result4;
 
-        private float adjPtMaxGrowVal0;
-        private float adjPtMaxGrowVal1;
-        private float adjPtMaxGrowVal2;
-        private float adjPtMaxGrowVal3;
-        private float adjPtMaxGrowVal4;
+        private float exponent0;
+        private float exponent1;
+        private float exponent2;
+        private float exponent3;
+        private float exponent4;
 
         public CalcCorrectGraph(ParamWrapper calcCorrectGraph, int statFuncId)
         {
             var item = calcCorrectGraph.Rows.First(x => x.ID == statFuncId);
 
-            stageMaxVal0 = (float)item["stageMaxVal0"].Value;
-            stageMaxVal1 = (float)item["stageMaxVal1"].Value;
-            stageMaxVal2 = (float)item["stageMaxVal2"].Value;
-            stageMaxVal3 = (float)item["stageMaxVal3"].Value;
-            stageMaxVal4 = (float)item["stageMaxVal4"].Value;
+            stat0 = (float)item["stageMaxVal0"].Value;
+            stat1 = (float)item["stageMaxVal1"].Value;
+            stat2 = (float)item["stageMaxVal2"].Value;
+            stat3 = (float)item["stageMaxVal3"].Value;
+            stat4 = (float)item["stageMaxVal4"].Value;
 
-            stageMaxGrowVal0 = (float)item["stageMaxGrowVal0"].Value;
-            stageMaxGrowVal1 = (float)item["stageMaxGrowVal1"].Value;
-            stageMaxGrowVal2 = (float)item["stageMaxGrowVal2"].Value;
-            stageMaxGrowVal3 = (float)item["stageMaxGrowVal3"].Value;
-            stageMaxGrowVal4 = (float)item["stageMaxGrowVal4"].Value;
+            result0 = (float)item["stageMaxGrowVal0"].Value;
+            result1 = (float)item["stageMaxGrowVal1"].Value;
+            result2 = (float)item["stageMaxGrowVal2"].Value;
+            result3 = (float)item["stageMaxGrowVal3"].Value;
+            result4 = (float)item["stageMaxGrowVal4"].Value;
 
-            adjPtMaxGrowVal0 = (float)item["adjPt_maxGrowVal0"].Value;
-            adjPtMaxGrowVal1 = (float)item["adjPt_maxGrowVal1"].Value;
-            adjPtMaxGrowVal2 = (float)item["adjPt_maxGrowVal2"].Value;
-            adjPtMaxGrowVal3 = (float)item["adjPt_maxGrowVal3"].Value;
-            adjPtMaxGrowVal4 = (float)item["adjPt_maxGrowVal4"].Value;
+            exponent0 = (float)item["adjPt_maxGrowVal0"].Value;
+            exponent1 = (float)item["adjPt_maxGrowVal1"].Value;
+            exponent2 = (float)item["adjPt_maxGrowVal2"].Value;
+            exponent3 = (float)item["adjPt_maxGrowVal3"].Value;
+            exponent4 = (float)item["adjPt_maxGrowVal4"].Value;
         }
 
         public float Apply(float stat)
         {
             if (stat == 0) return 0;
-            if (stat < stageMaxVal0)
+            if (stat < stat1)
             {
-                return Calculate(stat, stageMaxVal0, stageMaxVal1, stageMaxGrowVal0, stageMaxGrowVal1, adjPtMaxGrowVal0);
+                return Calculate(stat, stat0, stat1, result0, result1, exponent0);
             }
-            else if (stat < stageMaxVal1)
+            else if (stat < stat2)
             {
-                return Calculate(stat, stageMaxVal1, stageMaxVal2, stageMaxGrowVal1, stageMaxGrowVal2, adjPtMaxGrowVal1);
+                return Calculate(stat, stat1, stat2, result1, result2, exponent1);
             }
-            else if (stat < stageMaxVal2)
+            else if (stat < stat3)
             {
-                return Calculate(stat, stageMaxVal2, stageMaxVal3, stageMaxGrowVal2, stageMaxGrowVal3, adjPtMaxGrowVal2);
+                return Calculate(stat, stat2, stat3, result2, result3, exponent2);
             }
-            return Calculate(stat, stageMaxVal3, stageMaxVal4, stageMaxGrowVal3, stageMaxGrowVal4, adjPtMaxGrowVal3);
+            return Calculate(stat, stat3, stat4, result3, result4, exponent3);
+            // TODO: exponent4 is used where?
         }
 
-        private float Calculate(float stat, float xA, float xB, float yA, float yB, float p)
+        private float Calculate(float stat, float statMin, float statMax, float resultMin, float resultMax, float exponent)
         {
-            var dx = (stat - xA) / (xB - xA);
-            var fdx = (p > 0) ? (float)Math.Pow(dx, p) : 1 - (float)Math.Pow(1 - dx, -p);
-            return (yA + fdx * (yB - yA)) / 100.0f;
+            var statRange = statMax - statMin;
+            var resultRange = resultMax - resultMin;
+
+            var percent = Math.Max(0, Math.Min(statRange, stat - statMin)) / statRange;
+            if (exponent >= 0)
+            {
+                percent = (float)Math.Pow(percent, exponent);
+            }
+            else
+            {
+                percent = 1 - (float)Math.Pow(1 - percent, -exponent);
+            }
+            return (resultMin + percent * resultRange) / (result4 == 0 ? 1 : result4);
         }
     }
 
