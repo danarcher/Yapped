@@ -1,339 +1,371 @@
 {
-  "Bullet": {
-    "Entries": {
-      "atkBullet_Id": {
-        "Links": [
-          {
-            "Target": "AtkParam_Pc"
-          }
-        ]
-      },
-      "bulletEmitter_bulletId": {
-        "Links": [
-          {
-            "Target": "Bullet"
-          }
-        ]
-      },
-      "spEffectIdForShooter": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "autoSearchNpcThinkId": {
-        "Links": [
-          {
-            "Target": "NpcThinkParam"
-          }
-        ]
-      },
-      "hitBulletId": {
-        "Links": [
-          {
-            "Target": "Bullet"
-          }
-        ]
-      },
-      "spEffectId0": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectId1": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectId2": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectId3": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectId4": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "LimitBulletParamId": {
-        "Links": [
-          {
-            "Target": "BulletCreateLimitParam"
-          }
-        ]
-      },
-      "hitObjectId": {
-        "Links": [
-          {
-            "Target": "ObjectParam"
-          }
-        ]
-      }
-    }
-  },
-  "Magic": {
-    "Entries": {
-      "ezStateBehaviorType": {
-        "DisplayName": "ezStateBehaviorType [spellTool]"
-      },
-      "analogDexterityMin": {
-        "DisplayName": "analogDexterityMin [slowCastDexterity]"
-      },
-      "analogDexterityMax": {
-        "DisplayName": "analogDexterityMax [fastCastDexterity]"
-      },
-      "refId1": {
-        "Links": [
-          {
-            "Target": "BehaviorParam_PC",
-            "Conditions": [
-              {
-                "Key": "refCategory1",
-                "Operator": "Equals",
-                "Value": 0
-              }
-            ]
-          },
-          {
-            "Target": "Bullet",
-            "Conditions": [
-              {
-                "Key": "refCategory1",
-                "Operator": "Equals",
-                "Value": 1
-              }
-            ]
-          },
-          {
-            "Target": "SpEffectParam",
-            "Conditions": [
-              {
-                "Key": "refCategory1",
-                "Operator": "Equals",
-                "Value": 2
-              }
-            ]
-          }
-        ]
-      },
-      "refId2": {
-        "Links": [
-          {
-            "Target": "BehaviorParam_PC",
-            "Conditions": [
-              {
-                "Key": "refCategory2",
-                "Operator": "Equals",
-                "Value": 0
-              }
-            ]
-          },
-          {
-            "Target": "Bullet",
-            "Conditions": [
-              {
-                "Key": "refCategory2",
-                "Operator": "Equals",
-                "Value": 1
-              }
-            ]
-          },
-          {
-            "Target": "SpEffectParam",
-            "Conditions": [
-              {
-                "Key": "refCategory2",
-                "Operator": "Equals",
-                "Value": 2
-              }
-            ]
-          }
-        ]
-      },
-      "refId3": {
-        "Links": [
-          {
-            "Target": "BehaviorParam_PC",
-            "Conditions": [
-              {
-                "Key": "refCategory3",
-                "Operator": "Equals",
-                "Value": 0
-              }
-            ]
-          },
-          {
-            "Target": "Bullet",
-            "Conditions": [
-              {
-                "Key": "refCategory3",
-                "Operator": "Equals",
-                "Value": 1
-              }
-            ]
-          },
-          {
-            "Target": "SpEffectParam",
-            "Conditions": [
-              {
-                "Key": "refCategory3",
-                "Operator": "Equals",
-                "Value": 2
-              }
-            ]
-          }
-        ]
-      },
-      "refId4": {
-        "Links": [
-          {
-            "Target": "BehaviorParam_PC",
-            "Conditions": [
-              {
-                "Key": "refCategory4",
-                "Operator": "Equals",
-                "Value": 0
-              }
-            ]
-          },
-          {
-            "Target": "Bullet",
-            "Conditions": [
-              {
-                "Key": "refCategory4",
-                "Operator": "Equals",
-                "Value": 1
-              }
-            ]
-          },
-          {
-            "Target": "SpEffectParam",
-            "Conditions": [
-              {
-                "Key": "refCategory4",
-                "Operator": "Equals",
-                "Value": 2
-              }
-            ]
-          }
-        ]
-      }
-    }
-  },
-  "EquipParamWeapon": {
-    "Entries": {
-      "residentSpEffectId0": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "residentSpEffectId1": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "residentSpEffectId2": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectBehaviorId0": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectBehaviorId1": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "spEffectBehaviorId2": {
-        "Links": [
-          {
-            "Target": "SpEffectParam"
-          }
-        ]
-      },
-      "wepAbsorpPosId": {
-        "Links": [
-          {
-            "Target": "WepAbsorpPosParam"
-          }
-        ]
-      },
-      "attackElementCorrectId": {
-        "Links": [
-          {
-            "Target": "AttackElementCorrectParam"
-          }
-        ]
-      },
-      "correctType": {
-        "DisplayName": "correctType [physicalScalingGraphId]",
-        "Links": [
-          {
-            "Target": "CalcCorrectGraph"
-          }
-        ]
-      },
-      "Unk21": {
-        "DisplayName": "Unk21 [magicScalingGraphId]",
-        "Links": [
-          {
-            "Target": "CalcCorrectGraph"
-          }
-        ]
-      },
-      "Unk22": {
-        "DisplayName": "Unk22 [fireScalingGraphId]",
-        "Links": [
-          {
-            "Target": "CalcCorrectGraph"
-          }
-        ]
-      },
-      "Unk23": {
-        "DisplayName": "Unk23 [thunderScalingGraphId]",
-        "Links": [
-          {
-            "Target": "CalcCorrectGraph"
-          }
-        ]
-      },
-      "Unk26": {
-        "DisplayName": "Unk26 [darkScalingGraphId]",
-        "Links": [
-          {
-            "Target": "CalcCorrectGraph"
-          }
-        ]
-      }
-    }
-  }
+	"EquipParamProtector": {
+		"Entries": {
+			"residentSpEffectId1": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"residentSpEffectId2": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"residentSpEffectId3": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			}
+		}
+	},
+	"Bullet": {
+		"Entries": {
+			"atkBullet_Id": {
+				"Links": [
+					{
+						"Target": "AtkParam_Pc"
+					}
+				]
+			},
+			"bulletEmitter_bulletId": {
+				"Links": [
+					{
+						"Target": "Bullet"
+					}
+				]
+			},
+			"spEffectIdForShooter": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"autoSearchNpcThinkId": {
+				"Links": [
+					{
+						"Target": "NpcThinkParam"
+					}
+				]
+			},
+			"hitBulletId": {
+				"Links": [
+					{
+						"Target": "Bullet"
+					}
+				]
+			},
+			"spEffectId0": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectId1": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectId2": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectId3": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectId4": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"LimitBulletParamId": {
+				"Links": [
+					{
+						"Target": "BulletCreateLimitParam"
+					}
+				]
+			},
+			"hitObjectId": {
+				"Links": [
+					{
+						"Target": "ObjectParam"
+					}
+				]
+			}
+		}
+	},
+	"Magic": {
+		"Entries": {
+			"ezStateBehaviorType": {
+				"DisplayName": "ezStateBehaviorType [spellTool]"
+			},
+			"analogDexterityMin": {
+				"DisplayName": "analogDexterityMin [slowCastDexterity]"
+			},
+			"analogDexterityMax": {
+				"DisplayName": "analogDexterityMax [fastCastDexterity]"
+			},
+			"refId1": {
+				"Links": [
+					{
+						"Target": "BehaviorParam_PC",
+						"Conditions": [
+							{
+								"Key": "refCategory1",
+								"Operator": "Equals",
+								"Value": 0
+							}
+						]
+					},
+					{
+						"Target": "Bullet",
+						"Conditions": [
+							{
+								"Key": "refCategory1",
+								"Operator": "Equals",
+								"Value": 1
+							}
+						]
+					},
+					{
+						"Target": "SpEffectParam",
+						"Conditions": [
+							{
+								"Key": "refCategory1",
+								"Operator": "Equals",
+								"Value": 2
+							}
+						]
+					}
+				]
+			},
+			"refId2": {
+				"Links": [
+					{
+						"Target": "BehaviorParam_PC",
+						"Conditions": [
+							{
+								"Key": "refCategory2",
+								"Operator": "Equals",
+								"Value": 0
+							}
+						]
+					},
+					{
+						"Target": "Bullet",
+						"Conditions": [
+							{
+								"Key": "refCategory2",
+								"Operator": "Equals",
+								"Value": 1
+							}
+						]
+					},
+					{
+						"Target": "SpEffectParam",
+						"Conditions": [
+							{
+								"Key": "refCategory2",
+								"Operator": "Equals",
+								"Value": 2
+							}
+						]
+					}
+				]
+			},
+			"refId3": {
+				"Links": [
+					{
+						"Target": "BehaviorParam_PC",
+						"Conditions": [
+							{
+								"Key": "refCategory3",
+								"Operator": "Equals",
+								"Value": 0
+							}
+						]
+					},
+					{
+						"Target": "Bullet",
+						"Conditions": [
+							{
+								"Key": "refCategory3",
+								"Operator": "Equals",
+								"Value": 1
+							}
+						]
+					},
+					{
+						"Target": "SpEffectParam",
+						"Conditions": [
+							{
+								"Key": "refCategory3",
+								"Operator": "Equals",
+								"Value": 2
+							}
+						]
+					}
+				]
+			},
+			"refId4": {
+				"Links": [
+					{
+						"Target": "BehaviorParam_PC",
+						"Conditions": [
+							{
+								"Key": "refCategory4",
+								"Operator": "Equals",
+								"Value": 0
+							}
+						]
+					},
+					{
+						"Target": "Bullet",
+						"Conditions": [
+							{
+								"Key": "refCategory4",
+								"Operator": "Equals",
+								"Value": 1
+							}
+						]
+					},
+					{
+						"Target": "SpEffectParam",
+						"Conditions": [
+							{
+								"Key": "refCategory4",
+								"Operator": "Equals",
+								"Value": 2
+							}
+						]
+					}
+				]
+			}
+		}
+	},
+	"EquipParamWeapon": {
+		"Entries": {
+			"residentSpEffectId0": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"residentSpEffectId1": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"residentSpEffectId2": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectBehaviorId0": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectBehaviorId1": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"spEffectBehaviorId2": {
+				"Links": [
+					{
+						"Target": "SpEffectParam"
+					}
+				]
+			},
+			"wepAbsorpPosId": {
+				"Links": [
+					{
+						"Target": "WepAbsorpPosParam"
+					}
+				]
+			},
+			"attackElementCorrectId": {
+				"Links": [
+					{
+						"Target": "AttackElementCorrectParam"
+					}
+				]
+			},
+			"correctType": {
+				"DisplayName": "correctType [physicalScalingGraphId]",
+				"Links": [
+					{
+						"Target": "CalcCorrectGraph"
+					}
+				]
+			},
+			"Unk21": {
+				"DisplayName": "Unk21 [magicScalingGraphId]",
+				"Links": [
+					{
+						"Target": "CalcCorrectGraph"
+					}
+				]
+			},
+			"Unk22": {
+				"DisplayName": "Unk22 [fireScalingGraphId]",
+				"Links": [
+					{
+						"Target": "CalcCorrectGraph"
+					}
+				]
+			},
+			"Unk23": {
+				"DisplayName": "Unk23 [thunderScalingGraphId]",
+				"Links": [
+					{
+						"Target": "CalcCorrectGraph"
+					}
+				]
+			},
+			"Unk26": {
+				"DisplayName": "Unk26 [darkScalingGraphId]",
+				"Links": [
+					{
+						"Target": "CalcCorrectGraph"
+					}
+				]
+			},
+			"reinforceTypeId": {
+				"Links": [
+					{
+						"Target": "ReinforceParamWeapon"
+					}
+				]
+			}
+		}
+	}
 }
