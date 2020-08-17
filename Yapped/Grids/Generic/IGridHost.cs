@@ -27,6 +27,7 @@ namespace Yapped.Grids.Generic
         (string, object)[] GetCellEnumValues(int rowIndex, int columnIndex);
         object GetCellEditValue(int rowIndex, int columnIndex);
         void SetCellEditValue(int rowIndex, int columnIndex, object value);
+        bool TryGetCellResetValue(int rowIndex, int columnIndex, out object value);
 
         bool IsColumnClickable(int columnIndex);
         void ColumnClicked(int columnIndex);

@@ -464,6 +464,9 @@ namespace Yapped.Grids.Generic
                 case Keys.Enter:
                     TryEditCell();
                     break;
+                case Keys.Delete:
+                    TryResetCell();
+                    break;
             }
             UpdateCursor();
             base.OnKeyDown(e);
@@ -866,6 +869,23 @@ namespace Yapped.Grids.Generic
                     Invalidate();
                     return true;
                 }
+            }
+            return false;
+        }
+
+        private bool TryResetCell()
+        {
+            if (host == null || selectedRowIndex == -1 || selectedColumnIndex == -1 ||
+                host.GetCellEditType(selectedRowIndex, selectedColumnIndex) == GridCellType.None)
+            {
+                return false;
+            }
+
+            if (host.TryGetCellResetValue(selectedRowIndex, selectedColumnIndex, out object value))
+            {
+                Host.SetCellEditValue(selectedRowIndex, selectedColumnIndex, value);
+                Invalidate();
+                return true;
             }
             return false;
         }

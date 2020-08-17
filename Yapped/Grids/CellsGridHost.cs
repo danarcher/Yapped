@@ -273,6 +273,12 @@ namespace Yapped.Grids
             }
         }
 
+        public override bool TryGetCellResetValue(int rowIndex, int columnIndex, out object value)
+        {
+            value = DataSource[rowIndex].Layout.Default;
+            return value != null;
+        }
+
         public override bool IsLinkClickable(int rowIndex, int columnIndex)
         {
             return columnIndex == 2 && InspectLink(rowIndex) == LinkStatus.Valid;
