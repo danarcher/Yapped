@@ -1,0 +1,92 @@
+EQUIP_PARAM_PROTECTOR_ST:
+residentSpEffectId(\d+) link SpEffectParam
+
+BULLET_PARAM_ST:
+atkBullet_Id link AtkParam_Pc
+bulletEmitter_bulletId link Bullet
+spEffectIdForShooter link SpEffectParam
+autoSearchNpcThinkId link NpcThinkParam
+hitBulletId link Bullet
+spEffectId(\d+) link SpEffectParam
+LimitBulletParamId link BulletCreateLimitParam
+hitObjectId link ObjectParam
+
+MAGIC_PARAM_ST:
+ezStateBehaviorType alias spellTool
+analogDexterityMin alias slowCastDexterity
+analogDexterityMax alias fastCastDexterity
+refId(\d+) link BehaviorParam_PC if refCategory$1 == 0
+refId(\d+) link Bullet if refCategory$1 == 1
+refId(\d+) link SpEffectParam if refCategory$1 == 2
+
+EQUIP_PARAM_WEAPON_ST:
+residentSpEffectId(\d+) link SpEffectParam
+spEffectBehaviorId(\d+) link SpEffectParam
+wepAbsorpPosId link WepAbsorpPosParam
+attackElementCorrectId link AttackElementCorrectParam
+correctType alias physicalScalingGraphId
+correctType link CalcCorrectGraph
+Unk21 alias magicScalingGraphId
+Unk21 link CalcCorrectGraph
+Unk22 alias fireScalingGraphId
+Unk22 link CalcCorrectGraph
+Unk23 alias thunderScalingGraphId
+Unk23 link CalcCorrectGraph
+Unk26 alias darkScalingGraphId
+Unk26 link CalcCorrectGraph
+reinforceTypeId link ReinforceParamWeapon
+
+HIT_MTRL_PARAM_ST:
+spEffectId(\d+) link SpEffectParam
+
+ATTACK_ELEMENT_CORRECT_PARAM_ST:
+#0 alias physicalScaleWithStrength
+#1 alias physicalScaleWithAgility
+#2 alias physicalScaleWithMagic
+#3 alias physicalScaleWithFaith
+#4 alias physicalScaleWithLuck
+#5 alias magicScaleWithStrength
+#6 alias magicScaleWithAgility
+#7 alias magicScaleWithMagic
+#8 alias magicScaleWithFaith
+#9 alias magicScaleWithLuck
+#10 alias fireScaleWithStrength
+#11 alias fireScaleWithAgility
+#12 alias fireScaleWithMagic
+#13 alias fireScaleWithFaith
+#14 alias fireScaleWithLuck
+#15 alias thunderScaleWithStrength
+#16 alias thunderScaleWithAgility
+#17 alias thunderScaleWithThunder
+#18 alias thunderScaleWithFaith
+#19 alias thunderScaleWithLuck
+#20 alias darkScaleWithStrength
+#21 alias darkScaleWithAgility
+#22 alias darkScaleWithMagic
+#23 alias darkScaleWithFaith
+#24 alias darkScaleWithLuck
+corrRate0 alias physicalMultStrength
+corrRate1 alias physicalMultAgility
+corrRate2 alias physicalMultMagic
+corrRate3 alias physicalMultFaith
+corrRate4 alias physicalMultLuck
+corrRate5 alias magicMultStrength
+corrRate6 alias magicMultAgility
+corrRate7 alias magicMultMagic
+corrRate8 alias magicMultFaith
+corrRate9 alias magicMultLuck
+corrRate10 alias fireMultStrength
+corrRate11 alias fireMultAgility
+corrRate12 alias fireMultMagic
+corrRate13 alias fireMultFaith
+corrRate14 alias fireMultLuck
+corrRate15 alias thunderMultStrength
+corrRate16 alias thunderMultAgility
+corrRate17 alias thunderMultMagic
+corrRate18 alias thunderMultFaith
+corrRate19 alias thunderMultLuck
+corrRate20 alias darkMultStrength
+corrRate21 alias darkMultAgility
+corrRate22 alias darkMultMagic
+corrRate23 alias darkMultFaith
+corrRate24 alias darkMultLuck

@@ -300,7 +300,7 @@ namespace Yapped.Grids
 
         private ParamLayoutExtra.Entry GetExtra(int rowIndex)
         {
-            extras.Entries.TryGetValue(DataSource[rowIndex].Name, out ParamLayoutExtra.Entry entry);
+            extras.EntriesByIndex.TryGetValue(rowIndex, out ParamLayoutExtra.Entry entry);
             return entry;
         }
 

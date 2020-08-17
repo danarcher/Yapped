@@ -60,7 +60,7 @@ namespace Yapped
         public static ParamRoot Load(string path, GameMode gameMode, bool hideUnusedParams, string resDir)
         {
             var layouts = LoadLayouts($@"{resDir}\Layouts");
-            var extras = LoadLayoutExtras($@"{resDir}\LayoutExtra.json");
+            var extras = ParamLayoutExtra.Load($@"{resDir}\LayoutExtra.txt", layouts);
             var paramInfo = ParamInfo.ReadParamInfo($@"{resDir}\ParamInfo.xml");
 
             if (!File.Exists(path))
@@ -137,7 +137,7 @@ namespace Yapped
                     if (paramInfo.ContainsKey(name))
                         description = paramInfo[name].Description;
 
-                    extras.TryGetValue(name, out ParamLayoutExtra extra);
+                    extras.TryGetValue(param.ID, out ParamLayoutExtra extra);
 
                     var wrapper = new ParamWrapper(name, param, layout, extra, description);
                     instance.wrappers.Add(wrapper);
@@ -178,19 +178,6 @@ namespace Yapped
                 throw new Exception("Not all layouts were loaded.");
             }
             return layouts;
-        }
-
-        private static Dictionary<string, ParamLayoutExtra> LoadLayoutExtras(string path)
-        {
-            try
-            {
-                return JsonConvert.DeserializeObject<Dictionary<string, ParamLayoutExtra>>(File.ReadAllText(path)) ?? new Dictionary<string, ParamLayoutExtra>();
-            }
-            catch (Exception ex)
-            {
-                Util.ShowError($"Layout extras were not loaded.\r\n\r\n{ex}");
-                return new Dictionary<string, ParamLayoutExtra>();
-            }
         }
 
         public void Save(GameMode gameMode)
